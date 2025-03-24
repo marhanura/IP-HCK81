@@ -55,6 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       status: {
         type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: "status",
         validate: {
           notEmpty: { msg: "Status is required" },
           notNull: { msg: "Status is required" },
@@ -68,6 +69,7 @@ module.exports = (sequelize, DataTypes) => {
   );
   User.beforeCreate((user) => {
     user.password = hashPassword(user.password);
+    user.status = "active";
   });
   User.beforeUpdate((user) => {
     user.password = hashPassword(user.password);

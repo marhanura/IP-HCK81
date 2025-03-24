@@ -1,16 +1,16 @@
-const { Cuisine } = require("../models");
+const { Disease } = require("../models");
 
 async function authorization(req, res, next) {
   try {
-    let { id } = req.params;
-    let cuisine = await Cuisine.findByPk(id);
-    if (!cuisine) {
-      throw {
-        name: "NotFound",
-        message: `Cuisine not found`,
-      };
-    }
-    if (req.user.role === "Staff" && cuisine.authorId !== req.user.id) {
+    // let { id } = req.params;
+    // let disease = await Disease.findByPk(id);
+    // if (!disease) {
+    //   throw {
+    //     name: "NotFound",
+    //     message: `Disease not found`,
+    //   };
+    // }
+    if (req.user.role !== "tenaga kesehatan") {
       throw {
         name: "Forbidden",
         message: "You are not authorized to do this action",

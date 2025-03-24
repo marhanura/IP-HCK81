@@ -15,8 +15,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Disease.init(
     {
-      name: DataTypes.STRING,
-      symptoms: DataTypes.STRING,
+      symptoms: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: { msg: "Symptoms is required" },
+          notNull: { msg: "Symptoms is required" },
+        },
+      },
       diagnose: DataTypes.STRING,
       prescription: DataTypes.STRING,
       UserId: DataTypes.INTEGER,

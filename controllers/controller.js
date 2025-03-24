@@ -91,9 +91,13 @@ class Controller {
     try {
       const { id } = req.params;
       const { status } = req.body;
+      console.log("🐄 - Controller - updateUserStatus - status:", status);
       const user = await User.findByPk(id);
       if (!user) {
         throw { name: "NotFound", message: "User not found" };
+      }
+      if (!status) {
+        throw { name: "BadRequest", message: "Status is required" };
       }
       await user.update({ status });
       res.status(200).json({ message: "User status updated" });
@@ -105,8 +109,8 @@ class Controller {
 
   static async deleteUser(req, res, next) {
     try {
-      const { id } = req.params;
-      const user = await User.findByPk(id);
+      const { userId } = req.params;
+      const user = await User.findByPk(userId);
       if (!user) {
         throw { name: "NotFound", message: "User not found" };
       }
@@ -118,61 +122,108 @@ class Controller {
     }
   }
 
-  static async addSymptoms(req, res, next) {
-    try {
-      const { symptoms } = req.body;
-      const disease = await Disease.create({
-        symptoms,
-        UserId: req.user.id,
-      });
-      res.status(201).json(disease);
-    } catch (error) {
-      console.log("🐄 - Controller - addSymptoms - error:", error);
-      next(error);
-    }
-  }
-
-  static async analyzeDisease(req, res, next) {
-    try {
-      const symptoms = await Disease.findOne({
-        where: { UserId: req.user.id },
-        attributes: ["symptoms"],
-      });
-      console.log("🐄 - Controller - analyzeDisease - symptoms:", symptoms);
-      const drugs = await Drug.findAll({ attributes: ["name"] });
-      console.log("🐄 - Controller - analyzeDisease - drugs:", drugs);
-      const prompt = `
-                Based on the following symptoms: ${JSON.stringify(
-                  symptoms
-                )}, analyse the disease and recommend the medication guideline based on drugs available in ${JSON.stringify(
-        drugs
-      )}. 
-                Do not include drugs outside this drugs list.
-
-                Respond strictly in the format:
-                
-                    {
-                        "diagnose": "string",
-                        "prescription": "string",
-                    }
-                
-
-                If no recommendations, return [].`;
-      console.log("🐄 - Controller - analyzeDisease - prompt:", prompt);
-      const response = await model.generateContent(prompt);
-      console.log("🐄 - Controller - analyzeDisease - response:", response);
-    } catch (error) {
-      console.log("🐄 - Controller - analyzeDisease - error:", error);
-      next(error);
-    }
-  }
-
   static async getDrugs(req, res, next) {
     try {
       let data = await Drug.findAll();
       res.status(200).json(data);
     } catch (error) {
       console.log("🐄 - Controller - getDrugs - error:", error);
+      next(error);
+    }
+  }
+
+  static async addDisease(req, res, next) {
+    try {
+      const { userId } = req.params;
+      let { symptoms } = req.body;
+      if (!symptoms) {
+        throw { name: "BadRequest", message: "Symptoms are required" };
+      }
+      let user = await User.findByPk(userId);
+      if (!user) {
+        throw { name: "NotFound", message: "User not found" };
+      }
+      console.log("🐄 - Controller - addDisease - symptoms:", symptoms);
+      let drugs = await Drug.findAll({ attributes: ["id", "name"] });
+      let drugsSorted = drugs.map((drug) => {
+        return { id: drug.id, name: drug.name };
+      });
+      const prompt = `Based on the following symptoms: ${symptoms}, analyze the disease and recommend the medication guideline based on drugs available in ${JSON.stringify(
+        drugsSorted
+      )}. Do not include drugs outside this drug list.
+      Return response without additional information, strictly follow the format below with only one respond:
+      {
+        "diagnose": "string" (only mention the disease name),
+        "prescription": "string" (only one drug),
+        "DrugId": "number" (based on the drug list above)
+    }
+         If not able to be analyzed, return:
+          {
+            "diagnose": "unknown",
+            "prescription": "unknown"
+          }`;
+      let result = await model.generateContent(prompt);
+      let response = result.response
+        .text()
+        .replace(/```json|```/g, "")
+        .trim();
+      response = JSON.parse(response);
+      console.log("🐄 - Controller - addDisease - response:", response);
+      if (response.diagnose === "unknown") {
+        throw {
+          name: "BadRequest",
+          message: "Please specify the symptoms",
+        };
+      }
+      const disease = await Disease.create({
+        symptoms,
+        diagnose: response.diagnose,
+        prescription: response.prescription,
+        UserId: userId,
+        DrugId: response.DrugId,
+      });
+      res.status(201).json(disease);
+    } catch (error) {
+      console.log("🐄 - Controller - addDisease - error:", error);
+      next(error);
+    }
+  }
+
+  static async getAllDiseases(req, res, next) {
+    try {
+      let data = await Disease.findAll({ include: User });
+      res.status(200).json(data);
+    } catch (error) {
+      console.log("🐄 - Controller - getAllDiseases - error:", error);
+      next(error);
+    }
+  }
+
+  static async getDiseasebyUser(req, res, next) {
+    try {
+      const { userId } = req.params;
+      let data = await Disease.findAll({
+        where: { UserId: userId },
+        include: User,
+      });
+      res.status(200).json(data);
+    } catch (error) {
+      console.log("🐄 - Controller - getDiseasebyUser - error:", error);
+      next(error);
+    }
+  }
+
+  static async deleteDisease(req, res, next) {
+    try {
+      const { diseaseId } = req.params;
+      const disease = await Disease.findByPk(diseaseId);
+      if (!disease) {
+        throw { name: "NotFound", message: "Disease not found" };
+      }
+      await disease.destroy();
+      res.status(200).json({ message: "Disease deleted" });
+    } catch (error) {
+      console.log("🐄 - Controller - deleteDiasese - error:", error);
       next(error);
     }
   }
