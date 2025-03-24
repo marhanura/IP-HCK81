@@ -1,0 +1,596 @@
+[
+  {
+    "name": "Paracetamol",
+    "price": 5000,
+    "type": "OTC",
+    "category": "Analgesic"
+  },
+  {
+    "name": "Ibuprofen",
+    "price": 10000,
+    "type": "OTC",
+    "category": "NSAID"
+  },
+  {
+    "name": "Amoxicillin",
+    "price": 15000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Cetirizine",
+    "price": 12000,
+    "type": "OTC",
+    "category": "Antihistamine"
+  },
+  {
+    "name": "Loratadine",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Antihistamine"
+  },
+  {
+    "name": "Omeprazole",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "PPI"
+  },
+  {
+    "name": "Ranitidine",
+    "price": 20000,
+    "type": "OTC",
+    "category": "H2 Blocker"
+  },
+  {
+    "name": "Dexamethasone",
+    "price": 10000,
+    "type": "Prescription",
+    "category": "Corticosteroid"
+  },
+  {
+    "name": "Metformin",
+    "price": 15000,
+    "type": "Prescription",
+    "category": "Antidiabetic"
+  },
+  {
+    "name": "Glibenclamide",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Antidiabetic"
+  },
+  {
+    "name": "Simvastatin",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Statin"
+  },
+  {
+    "name": "Amlodipine",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Calcium Channel Blocker"
+  },
+  {
+    "name": "Losartan",
+    "price": 35000,
+    "type": "Prescription",
+    "category": "ARB"
+  },
+  {
+    "name": "Captopril",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "ACE Inhibitor"
+  },
+  {
+    "name": "Furosemide",
+    "price": 15000,
+    "type": "Prescription",
+    "category": "Diuretic"
+  },
+  {
+    "name": "Salbutamol Inhaler",
+    "price": 80000,
+    "type": "Prescription",
+    "category": "Bronchodilator"
+  },
+  {
+    "name": "Budesonide Inhaler",
+    "price": 120000,
+    "type": "Prescription",
+    "category": "Corticosteroid"
+  },
+  {
+    "name": "Diazepam",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Benzodiazepine"
+  },
+  {
+    "name": "Ciprofloxacin",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Azithromycin",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Mefenamic Acid",
+    "price": 15000,
+    "type": "OTC",
+    "category": "NSAID"
+  },
+  {
+    "name": "Piroxicam",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "NSAID"
+  },
+  {
+    "name": "Tramadol",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "Opioid Analgesic"
+  },
+  {
+    "name": "Ketoconazole Cream",
+    "price": 25000,
+    "type": "OTC",
+    "category": "Antifungal"
+  },
+  {
+    "name": "Clotrimazole Cream",
+    "price": 20000,
+    "type": "OTC",
+    "category": "Antifungal"
+  },
+  {
+    "name": "Hydrocortisone Cream",
+    "price": 30000,
+    "type": "OTC",
+    "category": "Corticosteroid"
+  },
+  {
+    "name": "Chlorpheniramine",
+    "price": 10000,
+    "type": "OTC",
+    "category": "Antihistamine"
+  },
+  {
+    "name": "Diphenhydramine",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Antihistamine"
+  },
+  {
+    "name": "Domperidone",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Antiemetic"
+  },
+  {
+    "name": "Metoclopramide",
+    "price": 15000,
+    "type": "Prescription",
+    "category": "Antiemetic"
+  },
+  {
+    "name": "Loperamide",
+    "price": 10000,
+    "type": "OTC",
+    "category": "Antidiarrheal"
+  },
+  {
+    "name": "Oral Rehydration Salts",
+    "price": 5000,
+    "type": "OTC",
+    "category": "Electrolyte"
+  },
+  {
+    "name": "Multivitamin",
+    "price": 20000,
+    "type": "OTC",
+    "category": "Supplement"
+  },
+  {
+    "name": "Vitamin C",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Supplement"
+  },
+  {
+    "name": "Vitamin B Complex",
+    "price": 25000,
+    "type": "OTC",
+    "category": "Supplement"
+  },
+  {
+    "name": "Ferrous Sulfate",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Iron Supplement"
+  },
+  {
+    "name": "Calcium Carbonate",
+    "price": 20000,
+    "type": "OTC",
+    "category": "Mineral Supplement"
+  },
+  {
+    "name": "Phenylephrine",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Decongestant"
+  },
+  {
+    "name": "Guaifenesin",
+    "price": 20000,
+    "type": "OTC",
+    "category": "Expectorant"
+  },
+  {
+    "name": "Dextromethorphan",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Antitussive"
+  },
+  {
+    "name": "Bisacodyl",
+    "price": 10000,
+    "type": "OTC",
+    "category": "Laxative"
+  },
+  {
+    "name": "Lactulose",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Laxative"
+  },
+  {
+    "name": "Sucralfate",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Antacid"
+  },
+  {
+    "name": "Antacid (Aluminum Hydroxide)",
+    "price": 10000,
+    "type": "OTC",
+    "category": "Antacid"
+  },
+  {
+    "name": "Povidone Iodine",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Antiseptic"
+  },
+  {
+    "name": "Hydrogen Peroxide",
+    "price": 10000,
+    "type": "OTC",
+    "category": "Antiseptic"
+  },
+  {
+    "name": "Betadine Solution",
+    "price": 20000,
+    "type": "OTC",
+    "category": "Antiseptic"
+  },
+  {
+    "name": "Erythromycin Ointment",
+    "price": 25000,
+    "type": "OTC",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Clindamycin Gel",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Tretinoin Cream",
+    "price": 60000,
+    "type": "Prescription",
+    "category": "Retinoid"
+  },
+  {
+    "name": "Fluconazole",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "Antifungal"
+  },
+  {
+    "name": "Miconazole Cream",
+    "price": 25000,
+    "type": "OTC",
+    "category": "Antifungal"
+  },
+  {
+    "name": "Nystatin",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Antifungal"
+  },
+  {
+    "name": "Prednisone",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Corticosteroid"
+  },
+  {
+    "name": "Hydroxyzine",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Antihistamine"
+  },
+  {
+    "name": "Dimenhydrinate",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Antiemetic"
+  },
+  {
+    "name": "Orlistat",
+    "price": 100000,
+    "type": "OTC",
+    "category": "Weight Loss"
+  },
+  {
+    "name": "Sildenafil",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "PDE5 Inhibitor"
+  },
+  {
+    "name": "Finasteride",
+    "price": 80000,
+    "type": "Prescription",
+    "category": "5-alpha Reductase Inhibitor"
+  },
+  {
+    "name": "Minoxidil Solution",
+    "price": 120000,
+    "type": "OTC",
+    "category": "Vasodilator"
+  },
+  {
+    "name": "Diclofenac Sodium",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "NSAID"
+  },
+  {
+    "name": "Naproxen",
+    "price": 25000,
+    "type": "OTC",
+    "category": "NSAID"
+  },
+  {
+    "name": "Celecoxib",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "NSAID"
+  },
+  {
+    "name": "Meloxicam",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "NSAID"
+  },
+  {
+    "name": "Tetracycline",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Doxycycline",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Levofloxacin",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Metronidazole",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Clarithromycin",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Cefadroxil",
+    "price": 35000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Cefixime",
+    "price": 60000,
+    "type": "Prescription",
+    "category": "Antibiotic"
+  },
+  {
+    "name": "Acyclovir",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "Antiviral"
+  },
+  {
+    "name": "Valacyclovir",
+    "price": 80000,
+    "type": "Prescription",
+    "category": "Antiviral"
+  },
+  {
+    "name": "Oseltamivir",
+    "price": 100000,
+    "type": "Prescription",
+    "category": "Antiviral"
+  },
+  {
+    "name": "Chloroquine",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Antimalarial"
+  },
+  {
+    "name": "Albendazole",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Anthelmintic"
+  },
+  {
+    "name": "Mebendazole",
+    "price": 15000,
+    "type": "OTC",
+    "category": "Anthelmintic"
+  },
+  {
+    "name": "Praziquantel",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "Anthelmintic"
+  },
+  {
+    "name": "Propranolol",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Beta Blocker"
+  },
+  {
+    "name": "Atenolol",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Beta Blocker"
+  },
+  {
+    "name": "Carvedilol",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "Beta Blocker"
+  },
+  {
+    "name": "Spironolactone",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Diuretic"
+  },
+  {
+    "name": "Folic Acid",
+    "price": 10000,
+    "type": "OTC",
+    "category": "Vitamin"
+  },
+  {
+    "name": "Vitamin D",
+    "price": 25000,
+    "type": "OTC",
+    "category": "Vitamin"
+  },
+  {
+    "name": "Vitamin E",
+    "price": 30000,
+    "type": "OTC",
+    "category": "Vitamin"
+  },
+  {
+    "name": "Zinc Sulfate",
+    "price": 20000,
+    "type": "OTC",
+    "category": "Mineral Supplement"
+  },
+  {
+    "name": "Magnesium Sulfate",
+    "price": 15000,
+    "type": "Prescription",
+    "category": "Mineral Supplement"
+  },
+  {
+    "name": "Potassium Chloride",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Electrolyte"
+  },
+  {
+    "name": "Diazepam",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Benzodiazepine"
+  },
+  {
+    "name": "Fluoxetine",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "SSRI"
+  },
+  {
+    "name": "Sertraline",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "SSRI"
+  },
+  {
+    "name": "Amitriptyline",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Tricyclic Antidepressant"
+  },
+  {
+    "name": "Haloperidol",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Antipsychotic"
+  },
+  {
+    "name": "Risperidone",
+    "price": 50000,
+    "type": "Prescription",
+    "category": "Antipsychotic"
+  },
+  {
+    "name": "Carbamazepine",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "Anticonvulsant"
+  },
+  {
+    "name": "Phenytoin",
+    "price": 30000,
+    "type": "Prescription",
+    "category": "Anticonvulsant"
+  },
+  {
+    "name": "Phenobarbital",
+    "price": 20000,
+    "type": "Prescription",
+    "category": "Barbiturate"
+  },
+  {
+    "name": "Allopurinol",
+    "price": 25000,
+    "type": "Prescription",
+    "category": "Uricosuric"
+  },
+  {
+    "name": "Colchicine",
+    "price": 40000,
+    "type": "Prescription",
+    "category": "Anti-gout"
+  }
+]
