@@ -60,3 +60,28 @@ afterAll(async () => {
     cascade: true,
   });
 });
+
+describe("POST /register", () => {
+  test("Successfully register a new user", async () => {
+    const newUser = {
+      username: "test123",
+      email: "test@mail.com",
+      password: "test123",
+    };
+
+    const res = await request(app).post("/register").send(newUser);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty("username", newUser.username);
+    expect(res.body).toHaveProperty("email", newUser.email);
+  });
+
+  // test("should return 400 if input is invalid", async () => {
+  //   User.create.mockResolvedValue(null);
+
+  //   const res = await request(app).post("/register").send({});
+
+  //   expect(res.status).toBe(400);
+  //   expect(res.body.message).toBe("Please check your input");
+  // });
+});

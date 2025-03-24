@@ -191,7 +191,12 @@ class Controller {
 
   static async getAllDiseases(req, res, next) {
     try {
-      let data = await Disease.findAll({ include: User });
+      let data = await Disease.findAll({
+        include: {
+          model: User,
+          attributes: ["username", "email", "status"],
+        },
+      });
       res.status(200).json(data);
     } catch (error) {
       console.log("🐄 - Controller - getAllDiseases - error:", error);
@@ -204,7 +209,6 @@ class Controller {
       const { userId } = req.params;
       let data = await Disease.findAll({
         where: { UserId: userId },
-        include: User,
       });
       res.status(200).json(data);
     } catch (error) {
@@ -221,26 +225,42 @@ class Controller {
         throw { name: "NotFound", message: "Disease not found" };
       }
       await disease.destroy();
-      res.status(200).json({ message: "Disease deleted" });
+      res.status(200).json({ message: `Disease ${disease.diagnose} deleted` });
     } catch (error) {
       console.log("🐄 - Controller - deleteDiasese - error:", error);
       next(error);
     }
   }
 
-  static async getPrescribedDrug(req, res, next) {
+  static async redeemDrug(req, res, next) {
     try {
       let { drugId, diseaseId } = req.params;
       let drug = await Drug.findByPk(drugId);
       if (!drug) {
         throw { name: "NotFound", message: "Drug not found" };
       }
-      let disease = await Disease.findByPk(diseaseId);
+      let disease = await Disease.findByPk(diseaseId, { include: User });
       if (!disease) {
         throw { name: "NotFound", message: "Disease not found" };
       }
-      await disease.update({ DrugId: drugId });
-      res.status(200).json({ message: `${drug} successfully prescribed` });
+      let user = await User.findByPk(disease.UserId);
+      if (user.status === "inactive") {
+        throw {
+          name: "BadRequest",
+          message: "User has no prescription to redeem",
+        };
+      }
+      if (disease.DrugId !== drug.id) {
+        throw {
+          name: "BadRequest",
+          message: "Drug not prescribed for this disease",
+        };
+      }
+      await User.update(
+        { status: "inactive" },
+        { where: { id: disease.UserId } }
+      );
+      res.status(200).json({ message: `Drug ${drug.name} is redeemed` });
     } catch (error) {
       console.log("🐄 - Controller - getDrugForUser - error:", error);
       next(error);

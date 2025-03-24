@@ -24,7 +24,7 @@ router.delete("/diseases/:diseaseId", authorization, Controller.deleteDisease);
 router.get(
   "/diseases/:diseaseId/:drugId",
   authorization,
-  Controller.getPrescribedDrug
+  Controller.redeemDrug
 );
 
 module.exports = router;
