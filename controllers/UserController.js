@@ -1,6 +1,7 @@
 const { User } = require("../models");
 const { comparePassword } = require("../helpers/bcrypt");
 const { signToken } = require("../helpers/jwt");
+const { OAuth2Client } = require("google-auth-library");
 
 class UserController {
   static async register(req, res, next) {
@@ -43,6 +44,41 @@ class UserController {
       res.status(200).json({ access_token, email, role: user.role });
     } catch (error) {
       console.log("🐄 - UserController - login - error:", error);
+      next(error);
+    }
+  }
+
+  static async googleLogin(req, res, next) {
+    try {
+      const { googleToken } = req.body;
+      if (!googleToken) {
+        throw { name: "BadRequest", message: "Google token required" };
+      }
+
+      const client = new OAuth2Client();
+      const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+
+      const [user] = await User.findOrCreate({
+        where: {
+          email: payload.email,
+        },
+        defaults: {
+          username: payload.name,
+          email: payload.email,
+          password: `${Math.random().toString()}!${Date.now()}`,
+          role: "user",
+          status: "active",
+        },
+      });
+
+      const access_token = signToken({ id: user.id });
+      res.status(200).json({ access_token, email: user.email });
+    } catch (error) {
+      console.log("🐄 - UserController - googleLogin - error:", error);
       next(error);
     }
   }

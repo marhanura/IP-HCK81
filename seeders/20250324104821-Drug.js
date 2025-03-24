@@ -15,6 +15,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Drugs", drugs);
+    await queryInterface.bulkDelete("Drugs", null, {
+      restartIdentity: true,
+      truncate: true,
+      cascade: true,
+    });
   },
 };
