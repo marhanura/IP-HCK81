@@ -1,5 +1,5 @@
 "use strict";
-const hashPassword = require("../helpers/hashPassword");
+const { hashPassword } = require("../helpers/bcrypt");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -38,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           notEmpty: { msg: "Password is required" },
           notNull: { msg: "Password is required" },
+          len: {
+            args: [5],
+            msg: "Password must be at least 5 characters",
+          },
         },
       },
       role: {
@@ -63,6 +67,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
   User.beforeCreate((user) => {
+    user.password = hashPassword(user.password);
+  });
+  User.beforeUpdate((user) => {
     user.password = hashPassword(user.password);
   });
   return User;
