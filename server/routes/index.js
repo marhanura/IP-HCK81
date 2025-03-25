@@ -9,18 +9,22 @@ router.get("/", (req, res) => {
 router.post("/register", Controller.register);
 router.post("/login", Controller.login);
 router.post("/google-login", Controller.googleLogin);
-router.get("/drugs", Controller.getDrugs);
+router.get("/drugs", Controller.getAllDrugs);
+router.get("/drugs/:drugId", Controller.getDrugById);
 router.use(authentication);
-router.get("/diseases/:userId", Controller.getDiseasebyUser);
 router.put("/redeem-drugs/:diseaseId", Controller.redeemDrug);
+router.get("/diseases/users/:userId", Controller.getDiseasebyUser);
 router.get("/diseases", authorization, Controller.getAllDiseases);
+router.post("/diseases/users/:userId", authorization, Controller.addDisease);
+router.get("/diseases/:diseaseId", authorization, Controller.getDiseaseById);
 router.delete("/diseases/:diseaseId", authorization, Controller.deleteDisease);
 router.post(
   "/diseases/:diseaseId/:drugId",
   authorization,
   Controller.addDrugToDisease
 );
-router.delete("/user/:userId", authorization, Controller.deleteUser);
-router.post("/user/:userId/disease", authorization, Controller.addDisease);
+router.get("/users", authorization, Controller.getAllUsers);
+router.put("/users/:userId", authorization, Controller.updateUser);
+router.delete("/users/:userId", authorization, Controller.deleteUser);
 
 module.exports = router;
