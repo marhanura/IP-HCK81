@@ -2,40 +2,31 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Diseases", {
+    await queryInterface.createTable("DiseaseDrugs", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      symptoms: {
-        type: Sequelize.STRING,
-      },
-      diagnose: {
-        type: Sequelize.STRING,
-      },
-      recommendation: {
-        type: Sequelize.STRING,
-      },
-      UserId: {
+      DiseaseId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Users",
+          model: "Diseases",
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      // DiseaseDrugId: {
-      //   type: Sequelize.INTEGER,
-      //   references: {
-      //     model: "Drugs",
-      //     key: "id",
-      //   },
-      //   onUpdate: "CASCADE",
-      //   onDelete: "CASCADE",
-      // },
+      DrugId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Drugs",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -47,6 +38,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Diseases");
+    await queryInterface.dropTable("DiseaseDrugs");
   },
 };
