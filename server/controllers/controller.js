@@ -6,6 +6,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const midtransClient = require("midtrans-client");
 const { isProduction } = require("midtrans-client/lib/snapBi/snapBiConfig");
 const drug = require("../models/drug");
+const { Op } = require("sequelize");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -90,26 +91,6 @@ class Controller {
     }
   }
 
-  // static async updateUserStatus(req, res, next) {
-  //   try {
-  //     const { id } = req.params;
-  //     const { status } = req.body;
-  //     console.log("🐄 - Controller - updateUserStatus - status:", status);
-  //     const user = await User.findByPk(id);
-  //     if (!user) {
-  //       throw { name: "NotFound", message: "User not found" };
-  //     }
-  //     if (!status) {
-  //       throw { name: "BadRequest", message: "Status is required" };
-  //     }
-  //     await user.update({ status });
-  //     res.status(200).json({ message: "User status updated" });
-  //   } catch (error) {
-  //     console.log("🐄 - Controller - updateStatus - error:", error);
-  //     next(error);
-  //   }
-  // }
-
   static async deleteUser(req, res, next) {
     try {
       const { userId } = req.params;
@@ -127,8 +108,44 @@ class Controller {
 
   static async getDrugs(req, res, next) {
     try {
-      let data = await Drug.findAll();
-      res.status(200).json(data);
+      const { filter, search, page } = req.query;
+
+      const paramQuerySQL = {
+        limit: 10,
+        offset: 0,
+        where: {},
+      };
+
+      if (search) {
+        paramQuerySQL.where.name = {
+          [Op.iLike]: `%${search}%`,
+        };
+      }
+
+      if (filter && filter.category) {
+        paramQuerySQL.where.category = filter.category.split(",");
+      }
+
+      if (page) {
+        if (page.size) {
+          paramQuerySQL.limit = page.size;
+        }
+
+        if (page.number) {
+          paramQuerySQL.offset =
+            page.number * paramQuerySQL.limit - paramQuerySQL.limit;
+        }
+      }
+
+      const { rows, count } = await Drug.findAndCountAll(paramQuerySQL);
+
+      res.status(200).json({
+        data: rows,
+        totalPages: Math.ceil(count / paramQuerySQL.limit),
+        currentPage: Number(page?.number || 1),
+        totalData: count,
+        dataPerPage: +paramQuerySQL.limit,
+      });
     } catch (error) {
       console.log("🐄 - Controller - getDrugs - error:", error);
       next(error);
@@ -216,7 +233,17 @@ class Controller {
 
   static async getAllDiseases(req, res, next) {
     try {
-      let data = await Disease.findAll({
+      const { sort } = req.query;
+
+      const options = {
+        where: {},
+      };
+
+      if (sort) {
+        options.order = [["createdAt", sort]];
+      }
+
+      let data = await Disease.findAll(options, {
         include: {
           model: User,
           attributes: ["username", "email", "status"],
@@ -257,17 +284,47 @@ class Controller {
     }
   }
 
+  static async addDrugToDisease(req, res, next) {
+    try {
+      let { diseaseId, drugId } = req.params;
+      let disease = await Disease.findByPk(diseaseId);
+      if (!disease) {
+        throw { name: "NotFound", message: "Disease not found" };
+      }
+      let drug = await Drug.findByPk(drugId);
+      if (!drug) {
+        throw { name: "NotFound", message: "Drug not found" };
+      }
+      let diseaseDrug = await DiseaseDrug.create({
+        DiseaseId: diseaseId,
+        DrugId: drugId,
+      });
+      console.log(
+        "🐄 - Controller - addDrugToDisease - diseaseDrug:",
+        diseaseDrug
+      );
+      res.status(201).json(diseaseDrug);
+    } catch (error) {
+      console.log("🐄 - Controller - addDrugtoDisease - error:", error);
+      next(error);
+    }
+  }
+
   static async redeemDrug(req, res, next) {
     try {
-      let { redeemId } = req.params;
+      let { diseaseId } = req.params;
       let prescribedDrugs = await DiseaseDrug.findAll({
-        where: { DiseaseId: redeemId },
+        where: { DiseaseId: diseaseId },
         include: Drug,
       });
-      if (!prescribedDrugs) {
+      console.log(
+        "🐄 - Controller - redeemDrug - prescribedDrugs:",
+        prescribedDrugs
+      );
+      if (!prescribedDrugs || prescribedDrugs.length === 0) {
         throw {
           name: "BadRequest",
-          message: "No drugs prescribed for this disease",
+          message: "Disease not found or no drug prescribed",
         };
       }
       let totalPrice = prescribedDrugs
@@ -275,17 +332,14 @@ class Controller {
         .reduce((acc, curr) => acc + curr);
       console.log("🐄 - Controller - redeemDrug - totalPrice:", totalPrice);
 
-      let redeemDrug = await RedeemDrug.findByPk(redeemId);
-
       let snap = new midtransClient.Snap({
         isProduction: false,
         serverKey: process.env.MIDTRANS_SERVER_KEY,
-        clientKey: process.env.MIDTRANS_CLIENT_KEY,
       });
 
       let parameter = {
         transaction_details: {
-          order_id: "PRSC-" + new Date() + req.user.email,
+          order_id: "PRSC-" + new Date().getTime(),
           gross_amount: totalPrice,
         },
         credit_card: {
@@ -297,13 +351,27 @@ class Controller {
       };
 
       const midtransToken = await snap.createTransaction(parameter);
+      console.log(
+        "🐄 - Controller - redeemDrug - midtransToken:",
+        midtransToken
+      );
 
-      await redeemDrug.update({
-        totalPrice,
-        midtransToken: midtransToken.token,
-      });
-      // res.send(redeemDrug);
-      res.status(200).json(prescribedDrugs);
+      let redeemDrug = await RedeemDrug.findByPk(diseaseId);
+      if (redeemDrug) {
+        await redeemDrug.update({
+          totalPrice,
+          midtransToken: midtransToken.token,
+        });
+      } else {
+        redeemDrug = await RedeemDrug.create({
+          DiseaseId: diseaseId,
+          totalPrice,
+          midtransToken: midtransToken.token,
+          redeemStatus: "not redeemed",
+          paymentStatus: "unpaid",
+        });
+      }
+      res.status(200).json(redeemDrug);
     } catch (error) {
       console.log("🐄 - Controller - redeemDrug - error:", error);
       next(error);

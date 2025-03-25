@@ -12,10 +12,14 @@ router.post("/google-login", Controller.googleLogin);
 router.get("/drugs", Controller.getDrugs);
 router.use(authentication);
 router.get("/diseases/:userId", Controller.getDiseasebyUser);
-router.get("/redeem-drugs/:redeemId", Controller.redeemDrug);
-router.patch("/redeem-drugs/:redeemId", Controller.redeemDrug);
+router.put("/redeem-drugs/:diseaseId", Controller.redeemDrug);
 router.get("/diseases", authorization, Controller.getAllDiseases);
 router.delete("/diseases/:diseaseId", authorization, Controller.deleteDisease);
+router.post(
+  "/diseases/:diseaseId/:drugId",
+  authorization,
+  Controller.addDrugToDisease
+);
 router.delete("/user/:userId", authorization, Controller.deleteUser);
 router.post("/user/:userId/disease", authorization, Controller.addDisease);
 
