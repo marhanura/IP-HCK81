@@ -15,7 +15,7 @@ module.exports = {
       diagnose: {
         type: Sequelize.STRING,
       },
-      prescription: {
+      recommendation: {
         type: Sequelize.STRING,
       },
       UserId: {
@@ -27,15 +27,15 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      DrugId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Drugs",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
+      // DiseaseDrugId: {
+      //   type: Sequelize.INTEGER,
+      //   references: {
+      //     model: "Drugs",
+      //     key: "id",
+      //   },
+      //   onUpdate: "CASCADE",
+      //   onDelete: "CASCADE",
+      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
