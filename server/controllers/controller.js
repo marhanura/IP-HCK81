@@ -5,7 +5,6 @@ const { OAuth2Client } = require("google-auth-library");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const midtransClient = require("midtrans-client");
 const { isProduction } = require("midtrans-client/lib/snapBi/snapBiConfig");
-const drug = require("../models/drug");
 const { Op } = require("sequelize");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -26,7 +25,6 @@ class Controller {
         email: user.email,
       });
     } catch (error) {
-      console.log("🐄 - Controller - register - error:", error);
       next(error);
     }
   }
@@ -35,10 +33,10 @@ class Controller {
     try {
       const { email, password } = req.body;
       if (!email) {
-        throw { name: "BadRequest", message: "Email required" };
+        throw { name: "BadRequest", message: "Email is required" };
       }
       if (!password) {
-        throw { name: "BadRequest", message: "Password required" };
+        throw { name: "BadRequest", message: "Password is required" };
       }
       const user = await User.findOne({ where: { email } });
       if (!user) {
@@ -51,7 +49,6 @@ class Controller {
       const access_token = signToken({ id: user.id });
       res.status(200).json({ access_token, email, role: user.role });
     } catch (error) {
-      console.log("🐄 - Controller - login - error:", error);
       next(error);
     }
   }
@@ -75,38 +72,19 @@ class Controller {
           email: payload.email,
         },
         defaults: {
-          username: payload.name,
           email: payload.email,
           password: `${Math.random().toString()}!${Date.now()}`,
-          role: "user",
-          status: "active",
+          role: "pasien",
         },
       });
-
       const access_token = signToken({ id: user.id });
       res.status(200).json({ access_token, email: user.email });
     } catch (error) {
-      console.log("🐄 - Controller - googleLogin - error:", error);
       next(error);
     }
   }
 
-  static async deleteUser(req, res, next) {
-    try {
-      const { userId } = req.params;
-      const user = await User.findByPk(userId);
-      if (!user) {
-        throw { name: "NotFound", message: "User not found" };
-      }
-      await user.destroy();
-      res.status(200).json({ message: "User deleted" });
-    } catch (error) {
-      console.log("🐄 - Controller - deleteUser - error:", error);
-      next(error);
-    }
-  }
-
-  static async getDrugs(req, res, next) {
+  static async getAllDrugs(req, res, next) {
     try {
       const { filter, search, page } = req.query;
 
@@ -147,7 +125,127 @@ class Controller {
         dataPerPage: +paramQuerySQL.limit,
       });
     } catch (error) {
-      console.log("🐄 - Controller - getDrugs - error:", error);
+      next(error);
+    }
+  }
+
+  static async getDrugById(req, res, next) {
+    try {
+      const { drugId } = req.params;
+      const drug = await Drug.findByPk(drugId);
+      if (!drug) {
+        throw { name: "NotFound", message: "Drug not found" };
+      }
+      res.status(200).json(drug);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async redeemDrug(req, res, next) {
+    try {
+      let { diseaseId } = req.params;
+      let prescribedDrugs = await DiseaseDrug.findAll({
+        where: { DiseaseId: diseaseId },
+        include: Drug,
+      });
+      console.log(
+        "🐄 - Controller - redeemDrug - prescribedDrugs:",
+        prescribedDrugs
+      );
+      if (!prescribedDrugs || prescribedDrugs.length === 0) {
+        throw {
+          name: "BadRequest",
+          message: "Disease not found or no drug prescribed",
+        };
+      }
+      let totalPrice = prescribedDrugs
+        .map((drug) => drug.Drug.price)
+        .reduce((acc, curr) => acc + curr);
+
+      let snap = new midtransClient.Snap({
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_SERVER_KEY,
+      });
+
+      let parameter = {
+        transaction_details: {
+          order_id: "PRSC-" + new Date().getTime(),
+          gross_amount: totalPrice,
+        },
+        credit_card: {
+          secure: true,
+        },
+        customer_details: {
+          email: req.user.email,
+        },
+      };
+
+      const midtransToken = await snap.createTransaction(parameter);
+      console.log(
+        "🐄 - Controller - redeemDrug - midtransToken:",
+        midtransToken
+      );
+
+      let redeemDrug = await RedeemDrug.findByPk(diseaseId);
+      if (redeemDrug) {
+        await redeemDrug.update({
+          totalPrice,
+          methodPayment: req.body.methodPayment,
+          midtransToken: midtransToken.token,
+          paymentStatus: "pending",
+        });
+      } else {
+        redeemDrug = await RedeemDrug.create({
+          DiseaseId: diseaseId,
+          totalPrice,
+          methodPayment: req.body.methodPayment,
+          midtransToken: midtransToken.token,
+          redeemStatus: "not redeemed",
+          paymentStatus: "pending",
+        });
+      }
+      res.status(200).json(redeemDrug);
+    } catch (error) {
+      console.log("🐄 - Controller - redeemDrug - error:", error);
+      next(error);
+    }
+  }
+
+  static async getDiseasebyUser(req, res, next) {
+    try {
+      const { userId } = req.params;
+      let data = await Disease.findAll({
+        where: { UserId: userId },
+      });
+      if (!data || data.length === 0) {
+        throw { name: "NotFound", message: "Disease not found" };
+      }
+      res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getAllDiseases(req, res, next) {
+    try {
+      const { sort } = req.query;
+
+      const options = {
+        where: {},
+      };
+
+      if (sort) {
+        options.order = [["createdAt", sort]];
+      }
+
+      let data = await Disease.findAll(options, {
+        include: {
+          model: User,
+        },
+      });
+      res.status(200).json(data);
+    } catch (error) {
       next(error);
     }
   }
@@ -157,7 +255,7 @@ class Controller {
       const { userId } = req.params;
       let { symptoms } = req.body;
       if (!symptoms) {
-        throw { name: "BadRequest", message: "Symptoms are required" };
+        throw { name: "BadRequest", message: "Symptoms is required" };
       }
       let user = await User.findByPk(userId);
       if (!user) {
@@ -198,7 +296,6 @@ class Controller {
         .replace(/```json|```/g, "")
         .trim();
       response = JSON.parse(response);
-      console.log("🐄 - Controller - addDisease - response:", response.DrugId);
       if (response.diagnose === "unknown") {
         throw {
           name: "BadRequest",
@@ -226,45 +323,34 @@ class Controller {
       });
       res.status(201).json(newDisease);
     } catch (error) {
-      console.log("🐄 - Controller - addDisease - error:", error);
       next(error);
     }
   }
 
-  static async getAllDiseases(req, res, next) {
+  static async getDiseaseById(req, res, next) {
     try {
-      const { sort } = req.query;
-
-      const options = {
-        where: {},
-      };
-
-      if (sort) {
-        options.order = [["createdAt", sort]];
+      const { diseaseId } = req.params;
+      let disease = await Disease.findAll({
+        where: { id: diseaseId },
+        include: [
+          {
+            model: User,
+          },
+          {
+            model: DiseaseDrug,
+            attributes: ["DrugId"],
+            include: {
+              model: Drug,
+              attributes: ["name", "price", "category"],
+            },
+          },
+        ],
+      });
+      if (!disease) {
+        throw { name: "NotFound", message: "Disease not found" };
       }
-
-      let data = await Disease.findAll(options, {
-        include: {
-          model: User,
-          attributes: ["username", "email", "status"],
-        },
-      });
-      res.status(200).json(data);
+      res.status(200).json(disease);
     } catch (error) {
-      console.log("🐄 - Controller - getAllDiseases - error:", error);
-      next(error);
-    }
-  }
-
-  static async getDiseasebyUser(req, res, next) {
-    try {
-      const { userId } = req.params;
-      let data = await Disease.findAll({
-        where: { UserId: userId },
-      });
-      res.status(200).json(data);
-    } catch (error) {
-      console.log("🐄 - Controller - getDiseasebyUser - error:", error);
       next(error);
     }
   }
@@ -279,7 +365,6 @@ class Controller {
       await disease.destroy();
       res.status(200).json({ message: `Disease ${disease.diagnose} deleted` });
     } catch (error) {
-      console.log("🐄 - Controller - deleteDiasese - error:", error);
       next(error);
     }
   }
@@ -299,81 +384,55 @@ class Controller {
         DiseaseId: diseaseId,
         DrugId: drugId,
       });
-      console.log(
-        "🐄 - Controller - addDrugToDisease - diseaseDrug:",
-        diseaseDrug
-      );
       res.status(201).json(diseaseDrug);
     } catch (error) {
-      console.log("🐄 - Controller - addDrugtoDisease - error:", error);
       next(error);
     }
   }
 
-  static async redeemDrug(req, res, next) {
+  static async getAllUsers(req, res, next) {
     try {
-      let { diseaseId } = req.params;
-      let prescribedDrugs = await DiseaseDrug.findAll({
-        where: { DiseaseId: diseaseId },
-        include: Drug,
-      });
-      console.log(
-        "🐄 - Controller - redeemDrug - prescribedDrugs:",
-        prescribedDrugs
-      );
-      if (!prescribedDrugs || prescribedDrugs.length === 0) {
-        throw {
-          name: "BadRequest",
-          message: "Disease not found or no drug prescribed",
-        };
-      }
-      let totalPrice = prescribedDrugs
-        .map((drug) => drug.Drug.price)
-        .reduce((acc, curr) => acc + curr);
-      console.log("🐄 - Controller - redeemDrug - totalPrice:", totalPrice);
+      const { filter } = req.query;
 
-      let snap = new midtransClient.Snap({
-        isProduction: false,
-        serverKey: process.env.MIDTRANS_SERVER_KEY,
-      });
-
-      let parameter = {
-        transaction_details: {
-          order_id: "PRSC-" + new Date().getTime(),
-          gross_amount: totalPrice,
-        },
-        credit_card: {
-          secure: true,
-        },
-        customer_details: {
-          email: req.user.email,
-        },
+      let paramQuerySQL = {
+        where: {},
       };
 
-      const midtransToken = await snap.createTransaction(parameter);
-      console.log(
-        "🐄 - Controller - redeemDrug - midtransToken:",
-        midtransToken
-      );
-
-      let redeemDrug = await RedeemDrug.findByPk(diseaseId);
-      if (redeemDrug) {
-        await redeemDrug.update({
-          totalPrice,
-          midtransToken: midtransToken.token,
-        });
-      } else {
-        redeemDrug = await RedeemDrug.create({
-          DiseaseId: diseaseId,
-          totalPrice,
-          midtransToken: midtransToken.token,
-          redeemStatus: "not redeemed",
-          paymentStatus: "unpaid",
-        });
+      if (filter && filter.role) {
+        paramQuerySQL.where.role = filter.role.split(",");
       }
-      res.status(200).json(redeemDrug);
+
+      const users = await User.findAll(paramQuerySQL);
+      res.status(200).json(users);
     } catch (error) {
-      console.log("🐄 - Controller - redeemDrug - error:", error);
+      next(error);
+    }
+  }
+
+  static async updateUser(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const user = await User.findByPk(userId);
+      if (!user) {
+        throw { name: "NotFound", message: "User not found" };
+      }
+      await user.update(req.body);
+      res.status(200).json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteUser(req, res, next) {
+    try {
+      const { userId } = req.params;
+      const user = await User.findByPk(userId);
+      if (!user) {
+        throw { name: "NotFound", message: "User not found" };
+      }
+      await user.destroy();
+      res.status(200).json({ message: "User deleted" });
+    } catch (error) {
       next(error);
     }
   }
