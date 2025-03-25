@@ -18,10 +18,5 @@ router.get("/diseases", authorization, Controller.getAllDiseases);
 router.delete("/diseases/:diseaseId", authorization, Controller.deleteDisease);
 router.delete("/user/:userId", authorization, Controller.deleteUser);
 router.post("/user/:userId/disease", authorization, Controller.addDisease);
-// router.patch(
-//   "/user/:userId/update-status",
-//   authorization,
-//   Controller.updateUserStatus
-// );
 
 module.exports = router;

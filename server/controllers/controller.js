@@ -302,8 +302,8 @@ class Controller {
         totalPrice,
         midtransToken: midtransToken.token,
       });
-      res.send(redeemDrug);
-      // res.status(200).json(prescribedDrugs);
+      // res.send(redeemDrug);
+      res.status(200).json(prescribedDrugs);
     } catch (error) {
       console.log("🐄 - Controller - redeemDrug - error:", error);
       next(error);
