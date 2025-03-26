@@ -147,6 +147,10 @@ class Controller {
         where: { DiseaseId: diseaseId },
         include: Drug,
       });
+      console.log(
+        "🐄 - Controller - redeemDrug - prescribedDrugs:",
+        prescribedDrugs
+      );
       if (!prescribedDrugs || prescribedDrugs.length === 0) {
         throw {
           name: "BadRequest",
@@ -222,7 +226,6 @@ class Controller {
       await redeemDrug.update({
         paymentStatus,
       });
-      // res.send(req.body);
       res.status(200).json(redeemDrug);
     } catch (error) {
       next(error);
@@ -258,9 +261,9 @@ class Controller {
         options.order = [["createdAt", sort]];
       }
 
-      // if (filter && filter.status) {
-      //   options.where.status = filter.status.split(",");
-      // }
+      if (filter && filter.status) {
+        options.where.status = filter.status.split(",");
+      }
 
       let data = await Disease.findAll(options);
       res.status(200).json(data);
@@ -415,6 +418,7 @@ class Controller {
       let options = {
         where: {},
         attributes: { exclude: ["password"] },
+        order: [["createdAt", "desc"]],
       };
 
       if (filter && filter.role) {

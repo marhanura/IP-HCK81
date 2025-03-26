@@ -85,21 +85,4 @@ export const fetchDiseaseByUser = createAsyncThunk(
   }
 );
 
-export const addDisease = createAsyncThunk(
-  "disease/addDisease",
-  async (userId, symptoms) => {
-    try {
-      const response = await api.post(`/diseases/users/${userId}`, symptoms, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      return response;
-    } catch (error) {
-      console.log("🐄 - addDisease - error:", error);
-      Swal.fire({ text: error.response.data.message, icon: "error" });
-    }
-  }
-);
-
 export default diseaseSlice.reducer;

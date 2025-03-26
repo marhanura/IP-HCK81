@@ -9,13 +9,12 @@ export default function PaymentPage() {
 
   async function redeemDrugs() {
     try {
-      const response = await axios.get("http://localhost:3000/redeem-drugs/1", {
+      const response = await api.get(`/redeem-drugs/${diseaseId}`, {
         headers: {
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzQyOTY3MTE0fQ.aN90Pxnstf4BBCy9GMUzgc666ZD_qT8DgTugayjmmtM",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
-      console.log("🐄 - redeemDrugs - response:", response);
+      console.log("🐄 - redeemDrugs - response:", response.data);
       window.snap.pay(response.data.midtransToken, {
         onSuccess: function (result) {
           console.log("🐄 - redeemDrugs - result:", result);
@@ -23,19 +22,19 @@ export default function PaymentPage() {
             text: "Payment success",
             icon: "success",
           });
-          axios.patch(
-            "http://localhost:3000/redeem-drugs/1",
-            {
-              redeemStatus: "redemeed",
-              paymentStatus: "paid",
-            },
-            {
-              headers: {
-                Authorization:
-                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzQyOTY3MTE0fQ.aN90Pxnstf4BBCy9GMUzgc666ZD_qT8DgTugayjmmtM",
-              },
-            }
-          );
+          // axios.patch(
+          //   "http://localhost:3000/redeem-drugs/1",
+          //   {
+          //     redeemStatus: "redemeed",
+          //     paymentStatus: "paid",
+          //   },
+          //   {
+          //     headers: {
+          //       Authorization:
+          //         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzQyOTY3MTE0fQ.aN90Pxnstf4BBCy9GMUzgc666ZD_qT8DgTugayjmmtM",
+          //     },
+          //   }
+          // );
           navigate("/");
         },
       });

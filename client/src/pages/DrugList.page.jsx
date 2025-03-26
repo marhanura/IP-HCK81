@@ -48,9 +48,9 @@ export default function DrugList() {
   }, []);
 
   return (
-    <section className="flex flex-wrap h-100 justify-center">
-      <div className="m-5">
-        <h1 className="text-2xl m-5 text-center">Drug Catalogue</h1>
+    <section className="flex-row h-100 justify-center">
+      <div className="m-5 text-center">
+        <h1 className="text-2xl m-5">Drug Catalogue</h1>
         <div className="join">
           <div>
             <label className="input validator join-item">

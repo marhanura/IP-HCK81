@@ -6,6 +6,7 @@ import { api } from "../helpers/api";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
@@ -15,7 +16,7 @@ export default function RegisterPage() {
     try {
       const response = await api.post(
         "/register",
-        { email, password, role },
+        { username, email, password, role },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -36,6 +37,15 @@ export default function RegisterPage() {
       <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
         <legend className="fieldset-legend">Register</legend>
         <form onSubmit={handleRegister}>
+          <label className="fieldset-label">Username</label>
+          <input
+            type="username"
+            className="input"
+            placeholder="Username"
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
           <label className="fieldset-label">Email</label>
           <input
             type="email"
@@ -45,7 +55,6 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-
           <label className="fieldset-label">Password</label>
           <input
             type="password"
