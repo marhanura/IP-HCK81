@@ -4,6 +4,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import { api } from "../../helpers/api";
+import Swal from "sweetalert2";
 
 const drugSlice = createSlice({
   name: "drug",
@@ -29,13 +30,13 @@ const drugSlice = createSlice({
 export const { setDrugs } = drugSlice.actions;
 
 export const fetchDrugs = createAsyncThunk("drug/fetchDrugs", async () => {
-  const response = await api.get("/drugs", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-  console.log("🐄 - fetchDrugs - response:", response);
-  return response.data;
+  try {
+    const response = await api.get("/drugs");
+    return response.data;
+  } catch (error) {
+    console.log("🐄 - fetchDrugs - error:", error);
+    Swal.fire({ text: error.response.data.message, icon: "error" });
+  }
 });
 
 export default drugSlice.reducer;

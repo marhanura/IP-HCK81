@@ -56,6 +56,7 @@ class Controller {
   static async googleLogin(req, res, next) {
     try {
       const { googleToken } = req.body;
+      console.log("🐄 - Controller - googleLogin - req:", req.body);
       if (!googleToken) {
         throw { name: "BadRequest", message: "Google token required" };
       }

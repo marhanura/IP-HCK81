@@ -1,14 +1,11 @@
-export default function Card() {
+export default function Card({ title, description, buttonText }) {
   return (
     <div className="card bg-base-100 w-96 shadow-sm">
       <div className="card-body">
-        <h2 className="card-title">Card title!</h2>
-        <p>
-          A card component has a figure, a body part, and inside body there are
-          title and actions parts
-        </p>
+        <h2 className="card-title">{title}</h2>
+        <p>{description}</p>
         <div className="card-actions justify-end">
-          <button className="btn btn-primary">Buy Now</button>
+          <button className="btn btn-primary">{buttonText}</button>
         </div>
       </div>
     </div>

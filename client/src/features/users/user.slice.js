@@ -31,11 +31,11 @@ export const { setUsers } = userSlice.actions;
 export const fetchUsers = createAsyncThunk("user/fetchUsers", async () => {
   const response = await api.get("/users", {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
     },
   });
   console.log("🐄 - fetchUsers - response:", response);
-  return response.data;
+  return response;
 });
 
 export default userSlice.reducer;
