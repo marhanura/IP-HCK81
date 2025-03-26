@@ -68,9 +68,11 @@ export default function RegisterPage() {
             <option value="tenaga kesehatan">Tenaga Kesehatan</option>
             <option value="pasien">Pasien</option>
           </select>
-          <button className="btn btn-neutral mt-4">Create Account</button>
+          <button className="btn btn-neutral mt-4 w-full">
+            Create Account
+          </button>
         </form>
-        <p>
+        <p className="text-center">
           Already have an account? <a href="/login">Log in</a>
         </p>
       </fieldset>

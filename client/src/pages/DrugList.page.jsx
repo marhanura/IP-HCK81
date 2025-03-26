@@ -50,7 +50,7 @@ export default function DrugList() {
   return (
     <section className="flex flex-wrap h-100 justify-center">
       <div className="m-5">
-        <h1 className="text-2xl m-5 text-center">Drug Catalog</h1>
+        <h1 className="text-2xl m-5 text-center">Drug Catalogue</h1>
         <div className="join">
           <div>
             <label className="input validator join-item">
@@ -67,30 +67,28 @@ export default function DrugList() {
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap gap-4 justify-center">
-        {drugsList.data ? (
-          <>
-            {drugsList.data.map((drug) => (
-              <Card
-                key={drug.id}
-                title={drug.name}
-                description={drug.price}
-                info={drug.category}
-                buttonText={
-                  role === "pasien" ? "Consult to be prescribed" : "Prescribe"
-                }
-                onClick={() => addDrug(drug.id)}
-              />
-            ))}
-            <Pagination
-              page={drugsList.currentPage}
-              totalPages={drugsList.totalPages}
+      {drugsList.data ? (
+        <div className="flex flex-wrap gap-4 justify-center">
+          {drugsList.data.map((drug) => (
+            <Card
+              key={drug.id}
+              title={drug.name}
+              description={drug.price}
+              info={drug.category}
+              buttonText={
+                role === "pasien" ? "Consult to be prescribed" : "Prescribe"
+              }
+              onClick={() => addDrug(drug.id)}
             />
-          </>
-        ) : (
-          <span className="loading loading-spinner text-primary"></span>
-        )}
-      </div>
+          ))}
+          <Pagination
+            page={drugsList.currentPage}
+            totalPages={drugsList.totalPages}
+          />
+        </div>
+      ) : (
+        <span className="loading loading-spinner text-primary"></span>
+      )}
     </section>
   );
 }

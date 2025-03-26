@@ -2,3 +2,7 @@
 @plugin "daisyui" {
   themes: lemonade --default;
 }
+
+:root {
+  font-family: "Poppins", sans-serif;
+}

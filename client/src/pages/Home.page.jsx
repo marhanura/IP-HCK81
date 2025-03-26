@@ -4,15 +4,15 @@ import Image2 from "../assets/main-image-2.png";
 
 export default function HomePage() {
   return (
-    <div className="flex w-full flex-col lg:flex-row">
-      <div className="card bg-base-300 rounded-box grid h-100 grow place-items-center">
-        <p>Consult to Our Doctor</p>
+    <div className="flex w-full flex-col lg:flex-row my-5">
+      <div className="card bg-base-300 rounded-box grid h-100 grow place-items-center m-5">
+        <h1 className="text-2xl m-5 text-center">Consult to Our Doctor</h1>
         <img src={Image1} alt="Main Image 1" className="h-80" />
       </div>
       <div className="divider lg:divider-horizontal"></div>
-      <div className="card bg-base-300 rounded-box grid h-100 grow place-items-center">
+      <div className="card bg-base-300 rounded-box grid h-100 grow place-items-center m-5">
         <Link to="/drugs">
-          <p>See Our Drug Catalog</p>
+          <h1 className="text-2xl m-5 text-center">See Our Drug Catalogue</h1>
           <img src={Image2} alt="Main Image 2" className="h-80" />
         </Link>
       </div>
