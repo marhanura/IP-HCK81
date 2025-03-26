@@ -66,7 +66,7 @@ export default function RegisterPage() {
               Choose your role
             </option>
             <option value="tenaga kesehatan">Tenaga Kesehatan</option>
-            <option value="user">User</option>
+            <option value="pasien">Pasien</option>
           </select>
           <button className="btn btn-neutral mt-4">Create Account</button>
         </form>

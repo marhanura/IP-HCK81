@@ -39,4 +39,21 @@ export const fetchDrugs = createAsyncThunk("drug/fetchDrugs", async () => {
   }
 });
 
+export const fetchDrugById = createAsyncThunk(
+  "drug/fetchDrugById",
+  async (drugId) => {
+    try {
+      const response = await api.get(`/drugs/${drugId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("🐄 - fetchDrugById - error:", error);
+      Swal.fire({ text: error.response.data.message, icon: "error" });
+    }
+  }
+);
+
 export default drugSlice.reducer;

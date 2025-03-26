@@ -23,15 +23,14 @@ export default function LoginPage() {
     }
   }
 
-  async function handleCredentialResponse(res) {
+  async function handleCredentialResponse(response) {
     try {
       const { data } = await api.post("/google-login", {
-        data: { googleToken: res.credential },
+        data: { googleToken: response.credential },
       });
       console.log("🐄 - handleCredentialResponse - response:", data);
-
       localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("role", data.role);
+      localStorage.setItem("role", data.user.role);
       Swal.fire({ text: "Logged in successfully", icon: "success" });
       navigate("/");
     } catch (error) {

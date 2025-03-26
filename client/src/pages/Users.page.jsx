@@ -2,9 +2,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Card from "../components/Card";
 import { useEffect } from "react";
 import { fetchUsers } from "../features/users/user.slice";
-import Pagination from "../components/Pagination";
-import Swal from "sweetalert2";
-import { api } from "../helpers/api";
 
 export default function UsersPage() {
   const usersList = useSelector((state) => state.user.users);
@@ -17,17 +14,22 @@ export default function UsersPage() {
   }, []);
 
   return (
-    <section>
-      <div className="flex flex-wrap gap-4">
+    <section className="flex flex-wrap h-100 justify-center">
+      <h1 className="text-2xl m-5 text-center">Users List</h1>
+      <div className="flex flex-wrap gap-4 justify-center m-5">
         {usersList.data ? (
           <>
             {usersList.data.map((user) => (
-              <Card key={user.id} title={user.email} buttonText={user.role} />
+              <Card
+                key={user.id}
+                title={user.email}
+                description={user.role}
+                buttonText="Add Disease"
+                linkTo={`/add-disease/users/${user.id}`}
+                buttonText2="See Details"
+                linkTo2={`/diseases/users/${user.id}`}
+              />
             ))}
-            <Pagination
-              page={usersList.currentPage}
-              totalPages={usersList.totalPages}
-            />
           </>
         ) : (
           <span className="loading loading-spinner text-primary"></span>

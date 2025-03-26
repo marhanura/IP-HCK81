@@ -6,12 +6,14 @@ export default function HomePage() {
   return (
     <div className="flex w-full flex-col lg:flex-row">
       <div className="card bg-base-300 rounded-box grid h-100 grow place-items-center">
-        <img src={Image1} alt="Main Image 1" className="h-100" />
+        <p>Consult to Our Doctor</p>
+        <img src={Image1} alt="Main Image 1" className="h-80" />
       </div>
       <div className="divider lg:divider-horizontal"></div>
       <div className="card bg-base-300 rounded-box grid h-100 grow place-items-center">
         <Link to="/drugs">
-          <img src={Image2} alt="Main Image 2" className="h-100" />
+          <p>See Our Drug Catalog</p>
+          <img src={Image2} alt="Main Image 2" className="h-80" />
         </Link>
       </div>
     </div>
