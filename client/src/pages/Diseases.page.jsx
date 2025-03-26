@@ -15,8 +15,8 @@ export default function DiseasesPage() {
   }, []);
 
   return (
-    <section className="flex flex-wrap h-100 justify-center">
-      <div>
+    <section className="flex-row h-100 justify-center">
+      <div className="text-center">
         <h1 className="text-2xl m-5 text-center">Diseases List</h1>
         <select className="select">
           <option value="" disabled>
@@ -43,7 +43,7 @@ export default function DiseasesPage() {
             ))}
           </>
         ) : (
-          <span className="loading loading-spinner text-primary"></span>
+          <p>No diseases available</p>
         )}
       </div>
     </section>

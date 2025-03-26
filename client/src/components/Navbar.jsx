@@ -29,7 +29,7 @@ export default function Navbar() {
   return (
     <div className="navbar bg-base-100 shadow-sm">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl" href="/">
+        <a href="/">
           <img src={Logo} alt="Zehat Logo" className="h-10" />
         </a>
       </div>

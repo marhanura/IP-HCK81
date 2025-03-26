@@ -1,4 +1,3 @@
-import SideImage from "../assets/drugs-image.png";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router";
@@ -21,7 +20,6 @@ export default function AddDisease() {
           },
         }
       );
-      console.log("🐄 - addDisease - response:", response);
       Swal.fire({
         text: "New diagnose generated successfully",
         icon: "success",
@@ -35,18 +33,21 @@ export default function AddDisease() {
 
   return (
     <section className="flex flex-wrap items-center justify-center h-screen">
-      <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
+      <fieldset className="fieldset w-xl bg-base-200 border border-base-300 p-4 rounded-box">
         <legend className="fieldset-legend">Generate New Disease</legend>
-        <form onSubmit={addDisease}>
+        <form
+          onSubmit={addDisease}
+          className="flex flex-col gap-2 items-center"
+        >
           <textarea
             type="text"
-            className="input"
+            className="input w-full h-30"
             placeholder="Enter your symptoms"
             name="symptoms"
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
           />
-          <button className="btn btn-neutral mt-4">Diagnose</button>
+          <button className="btn btn-neutral mt-4 w-80">Diagnose</button>
         </form>
       </fieldset>
     </section>

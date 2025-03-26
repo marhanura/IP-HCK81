@@ -52,13 +52,15 @@ export default function DiseaseDetail() {
               <button
                 className="btn btn-primary"
                 onClick={() => {
-                  localStorage.setItem("diseaseId", diseaseId);
+                  localStorage.setItem("diseaseId", disease.id);
                 }}
               >
                 Add Drugs
               </button>
             </Link>
-            <button className="btn btn-primary">Redeem Drugs</button>
+            <Link to={`/redeem-drugs/${disease.id}`}>
+              <button className="btn btn-primary">Redeem Drugs</button>
+            </Link>
           </div>
         </div>
       </div>

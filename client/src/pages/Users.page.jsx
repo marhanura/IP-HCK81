@@ -14,7 +14,7 @@ export default function UsersPage() {
   }, []);
 
   return (
-    <section className="flex flex-wrap h-100 justify-center">
+    <section className="flex-row h-100 justify-center">
       <h1 className="text-2xl m-5 text-center">Users List</h1>
       <div className="flex flex-wrap gap-4 justify-center m-5">
         {usersList.data ? (
@@ -25,7 +25,7 @@ export default function UsersPage() {
                 title={user.email}
                 description={user.role}
                 buttonText="Add Disease"
-                linkTo={`/add-disease/users/${user.id}`}
+                linkTo={`/diseases/add/${user.id}`}
                 buttonText2="See Details"
                 linkTo2={`/diseases/users/${user.id}`}
               />
