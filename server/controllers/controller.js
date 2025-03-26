@@ -188,7 +188,6 @@ class Controller {
       let redeemDrug = await RedeemDrug.findOne({
         where: { DiseaseId: diseaseId },
       });
-      await prescribedDrugs.update({ status: "redeemed" });
       if (redeemDrug) {
         await redeemDrug.update({
           totalPrice,
@@ -220,9 +219,14 @@ class Controller {
       if (!redeemDrug) {
         throw { name: "NotFound", message: "Redeem Drug not found" };
       }
+      let disease = await Disease.findByPk(diseaseId);
+      if (!disease) {
+        throw { name: "NotFound", message: "Disease not found" };
+      }
       if (req.body.length === 0) {
         throw { name: "BadRequest", message: "Please specify the status" };
       }
+      await disease.update({ status: "redeemed" });
       await redeemDrug.update({
         paymentStatus,
       });
@@ -250,19 +254,16 @@ class Controller {
 
   static async getAllDiseases(req, res, next) {
     try {
-      const { sort } = req.query;
+      const { filter } = req.query;
 
       const options = {
         where: {},
         include: User,
+        order: [["createdAt", "desc"]],
       };
 
-      if (sort) {
-        options.order = [["createdAt", sort]];
-      }
-
       if (filter && filter.status) {
-        options.where.status = filter.status.split(",");
+        options.where.status = filter.status;
       }
 
       let data = await Disease.findAll(options);
@@ -329,6 +330,7 @@ class Controller {
         diagnose: response.diagnose,
         recommendation: response.recommendation,
         UserId: userId,
+        status: "not redeemed",
       });
       const drugs = response.DrugId.split(", ").map((drug) => {
         let diseaseDrug = DiseaseDrug.create({
@@ -413,19 +415,10 @@ class Controller {
 
   static async getAllUsers(req, res, next) {
     try {
-      const { filter } = req.query;
-
-      let options = {
-        where: {},
+      const users = await User.findAll({
         attributes: { exclude: ["password"] },
         order: [["createdAt", "desc"]],
-      };
-
-      if (filter && filter.role) {
-        options.where.role = filter.role.split(",");
-      }
-
-      const users = await User.findAll(options);
+      });
       res.status(200).json(users);
     } catch (error) {
       next(error);
