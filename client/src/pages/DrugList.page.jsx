@@ -5,16 +5,16 @@ import { fetchDrugs } from "../features/drugs/drug.slice";
 import Pagination from "../components/Pagination";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
-import axios from "axios";
 import { useNavigate } from "react-router";
 
 export default function DrugList() {
-  const drugsList = useSelector((state) => state.drug.drugs);
+  const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
   const dispatch = useDispatch();
   const diseaseId = localStorage.getItem("diseaseId");
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   async function addDrug(drugId) {
     // e.preventDefault();
@@ -23,14 +23,16 @@ export default function DrugList() {
         localStorage.setItem("drugId", drugId);
         navigate("/diseases");
       }
-      const response = await axios.post(
-        `http://localhost:3000/diseases/${diseaseId}/${drugId}`,
+      const response = await api.post(
+        `/diseases/${diseaseId}/${drugId}`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         }
       );
+
       localStorage.removeItem("diseaseId");
       console.log("🐄 - addDrug - response:", response);
       await Swal.fire({
@@ -44,8 +46,8 @@ export default function DrugList() {
   }
 
   useEffect(() => {
-    dispatch(fetchDrugs());
-  }, []);
+    dispatch(fetchDrugs({ search, page }));
+  }, [search, page]);
 
   return (
     <section className="flex-row h-100 justify-center">
@@ -67,23 +69,26 @@ export default function DrugList() {
           </button>
         </div>
       </div>
-      {drugsList.data ? (
+      {drugs.data ? (
         <div className="flex flex-wrap gap-4 justify-center">
-          {drugsList.data.map((drug) => (
+          {drugs.data.map((drug) => (
             <Card
               key={drug.id}
               title={drug.name}
               description={drug.price}
               info={drug.category}
               buttonText={
-                role === "pasien" ? "Consult to be prescribed" : "Prescribe"
+                role === "tenaga kesehatan"
+                  ? "Prescribe"
+                  : "Consult to be prescribed"
               }
               onClick={() => addDrug(drug.id)}
             />
           ))}
           <Pagination
-            page={drugsList.currentPage}
-            totalPages={drugsList.totalPages}
+            page={currentPage}
+            totalPages={totalPages}
+            setPage={setPage}
           />
         </div>
       ) : (

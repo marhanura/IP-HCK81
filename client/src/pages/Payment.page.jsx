@@ -16,25 +16,24 @@ export default function PaymentPage() {
       });
       console.log("🐄 - redeemDrugs - response:", response.data);
       window.snap.pay(response.data.midtransToken, {
-        onSuccess: function (result) {
+        onSuccess: async function (result) {
           console.log("🐄 - redeemDrugs - result:", result);
           Swal.fire({
             text: "Payment success",
             icon: "success",
           });
-          // axios.patch(
-          //   "http://localhost:3000/redeem-drugs/1",
-          //   {
-          //     redeemStatus: "redemeed",
-          //     paymentStatus: "paid",
-          //   },
-          //   {
-          //     headers: {
-          //       Authorization:
-          //         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzQyOTY3MTE0fQ.aN90Pxnstf4BBCy9GMUzgc666ZD_qT8DgTugayjmmtM",
-          //     },
-          //   }
-          // );
+          await api.patch(
+            `/redeem-drugs/${diseaseId}`,
+            {
+              redeemStatus: "redemeed",
+              paymentStatus: "paid",
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
           navigate("/");
         },
       });

@@ -37,9 +37,9 @@ export const { setDiseases } = diseaseSlice.actions;
 
 export const fetchDiseases = createAsyncThunk(
   "disease/fetchDiseases",
-  async () => {
+  async (filter) => {
     try {
-      const response = await api.get("/diseases", {
+      const response = await api.get(`/diseases?filter[status]=${filter}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
