@@ -191,7 +191,7 @@ class Controller {
       if (redeemDrug) {
         await redeemDrug.update({
           totalPrice,
-          methodPayment: req.body.methodPayment,
+          methodPayment: midtransToken.redirect_url,
           midtransToken: midtransToken.token,
           paymentStatus: "pending",
         });

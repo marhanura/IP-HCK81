@@ -9,7 +9,7 @@ export default function Navbar() {
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a href="/drugs">Drugs</a>
+            <a href="/login">Log in</a>
           </li>
           <li>
             <details>
