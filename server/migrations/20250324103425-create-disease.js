@@ -18,6 +18,9 @@ module.exports = {
       recommendation: {
         type: Sequelize.STRING,
       },
+      status: {
+        type: Sequelize.STRING,
+      },
       UserId: {
         type: Sequelize.INTEGER,
         references: {
@@ -27,15 +30,6 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      // DiseaseDrugId: {
-      //   type: Sequelize.INTEGER,
-      //   references: {
-      //     model: "Drugs",
-      //     key: "id",
-      //   },
-      //   onUpdate: "CASCADE",
-      //   onDelete: "CASCADE",
-      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

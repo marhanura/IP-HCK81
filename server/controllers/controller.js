@@ -6,6 +6,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const midtransClient = require("midtrans-client");
 const { isProduction } = require("midtrans-client/lib/snapBi/snapBiConfig");
 const { Op } = require("sequelize");
+const e = require("express");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -56,6 +57,7 @@ class Controller {
   static async googleLogin(req, res, next) {
     try {
       const { googleToken } = req.body;
+      console.log("🐄 - Controller - googleLogin - req:", req.body);
       if (!googleToken) {
         throw { name: "BadRequest", message: "Google token required" };
       }
@@ -72,6 +74,7 @@ class Controller {
           email: payload.email,
         },
         defaults: {
+          username: payload.name,
           email: payload.email,
           password: `${Math.random().toString()}!${Date.now()}`,
           role: "pasien",
@@ -86,43 +89,38 @@ class Controller {
 
   static async getAllDrugs(req, res, next) {
     try {
-      const { filter, search, page } = req.query;
+      const { search, page } = req.query;
 
-      const paramQuerySQL = {
-        limit: 10,
+      const options = {
+        limit: 9,
         offset: 0,
         where: {},
       };
 
       if (search) {
-        paramQuerySQL.where.name = {
+        options.where.name = {
           [Op.iLike]: `%${search}%`,
         };
       }
 
-      if (filter && filter.category) {
-        paramQuerySQL.where.category = filter.category.split(",");
-      }
-
       if (page) {
         if (page.size) {
-          paramQuerySQL.limit = page.size;
+          options.limit = page.size;
         }
 
         if (page.number) {
-          paramQuerySQL.offset =
-            page.number * paramQuerySQL.limit - paramQuerySQL.limit;
+          options.offset = page.number * options.limit - options.limit;
         }
       }
 
-      const { rows, count } = await Drug.findAndCountAll(paramQuerySQL);
+      const { rows, count } = await Drug.findAndCountAll(options);
 
       res.status(200).json({
         data: rows,
-        totalPages: Math.ceil(count / paramQuerySQL.limit),
+        totalPages: Math.ceil(count / options.limit),
         currentPage: Number(page?.number || 1),
         totalData: count,
-        dataPerPage: +paramQuerySQL.limit,
+        dataPerPage: +options.limit,
       });
     } catch (error) {
       next(error);
@@ -149,10 +147,6 @@ class Controller {
         where: { DiseaseId: diseaseId },
         include: Drug,
       });
-      console.log(
-        "🐄 - Controller - redeemDrug - prescribedDrugs:",
-        prescribedDrugs
-      );
       if (!prescribedDrugs || prescribedDrugs.length === 0) {
         throw {
           name: "BadRequest",
@@ -187,11 +181,13 @@ class Controller {
         midtransToken
       );
 
-      let redeemDrug = await RedeemDrug.findByPk(diseaseId);
+      let redeemDrug = await RedeemDrug.findOne({
+        where: { DiseaseId: diseaseId },
+      });
+      await prescribedDrugs.update({ status: "redeemed" });
       if (redeemDrug) {
         await redeemDrug.update({
           totalPrice,
-          methodPayment: req.body.methodPayment,
           midtransToken: midtransToken.token,
           paymentStatus: "pending",
         });
@@ -199,9 +195,7 @@ class Controller {
         redeemDrug = await RedeemDrug.create({
           DiseaseId: diseaseId,
           totalPrice,
-          methodPayment: req.body.methodPayment,
           midtransToken: midtransToken.token,
-          redeemStatus: "not redeemed",
           paymentStatus: "pending",
         });
       }
@@ -212,11 +206,35 @@ class Controller {
     }
   }
 
+  static async updateStatus(req, res, next) {
+    try {
+      let { diseaseId } = req.params;
+      let { paymentStatus } = req.body;
+      let redeemDrug = await RedeemDrug.findOne({
+        where: { DiseaseId: diseaseId },
+      });
+      if (!redeemDrug) {
+        throw { name: "NotFound", message: "Redeem Drug not found" };
+      }
+      if (req.body.length === 0) {
+        throw { name: "BadRequest", message: "Please specify the status" };
+      }
+      await redeemDrug.update({
+        paymentStatus,
+      });
+      // res.send(req.body);
+      res.status(200).json(redeemDrug);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getDiseasebyUser(req, res, next) {
     try {
       const { userId } = req.params;
-      let data = await Disease.findAll({
-        where: { UserId: userId },
+      let data = await User.findByPk(userId, {
+        include: Disease,
+        attributes: { exclude: ["password"] },
       });
       if (!data || data.length === 0) {
         throw { name: "NotFound", message: "Disease not found" };
@@ -233,17 +251,18 @@ class Controller {
 
       const options = {
         where: {},
+        include: User,
       };
 
       if (sort) {
         options.order = [["createdAt", sort]];
       }
 
-      let data = await Disease.findAll(options, {
-        include: {
-          model: User,
-        },
-      });
+      // if (filter && filter.status) {
+      //   options.where.status = filter.status.split(",");
+      // }
+
+      let data = await Disease.findAll(options);
       res.status(200).json(data);
     } catch (error) {
       next(error);
@@ -318,7 +337,6 @@ class Controller {
 
       const redeemDrug = await RedeemDrug.create({
         DiseaseId: newDisease.id,
-        redeemStatus: "not redeemed",
         paymentStatus: "unpaid",
       });
       res.status(201).json(newDisease);
@@ -394,15 +412,16 @@ class Controller {
     try {
       const { filter } = req.query;
 
-      let paramQuerySQL = {
+      let options = {
         where: {},
+        attributes: { exclude: ["password"] },
       };
 
       if (filter && filter.role) {
-        paramQuerySQL.where.role = filter.role.split(",");
+        options.where.role = filter.role.split(",");
       }
 
-      const users = await User.findAll(paramQuerySQL);
+      const users = await User.findAll(options);
       res.status(200).json(users);
     } catch (error) {
       next(error);
