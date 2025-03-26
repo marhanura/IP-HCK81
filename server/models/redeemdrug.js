@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       totalPrice: DataTypes.INTEGER,
       midtransToken: DataTypes.STRING,
       methodPayment: DataTypes.STRING,
-      redeemStatus: DataTypes.STRING,
       paymentStatus: DataTypes.STRING,
     },
     {

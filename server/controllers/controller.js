@@ -74,6 +74,7 @@ class Controller {
           email: payload.email,
         },
         defaults: {
+          username: payload.name,
           email: payload.email,
           password: `${Math.random().toString()}!${Date.now()}`,
           role: "pasien",
@@ -146,10 +147,6 @@ class Controller {
         where: { DiseaseId: diseaseId },
         include: Drug,
       });
-      console.log(
-        "🐄 - Controller - redeemDrug - prescribedDrugs:",
-        prescribedDrugs
-      );
       if (!prescribedDrugs || prescribedDrugs.length === 0) {
         throw {
           name: "BadRequest",
@@ -187,10 +184,10 @@ class Controller {
       let redeemDrug = await RedeemDrug.findOne({
         where: { DiseaseId: diseaseId },
       });
+      await prescribedDrugs.update({ status: "redeemed" });
       if (redeemDrug) {
         await redeemDrug.update({
           totalPrice,
-          methodPayment: "midtrans",
           midtransToken: midtransToken.token,
           paymentStatus: "pending",
         });
@@ -198,9 +195,7 @@ class Controller {
         redeemDrug = await RedeemDrug.create({
           DiseaseId: diseaseId,
           totalPrice,
-          methodPayment: "midtrans",
           midtransToken: midtransToken.token,
-          redeemStatus: "not redeemed",
           paymentStatus: "pending",
         });
       }
@@ -214,7 +209,7 @@ class Controller {
   static async updateStatus(req, res, next) {
     try {
       let { diseaseId } = req.params;
-      let { redeemStatus, paymentStatus } = req.body;
+      let { paymentStatus } = req.body;
       let redeemDrug = await RedeemDrug.findOne({
         where: { DiseaseId: diseaseId },
       });
@@ -225,7 +220,6 @@ class Controller {
         throw { name: "BadRequest", message: "Please specify the status" };
       }
       await redeemDrug.update({
-        redeemStatus,
         paymentStatus,
       });
       // res.send(req.body);
@@ -343,7 +337,6 @@ class Controller {
 
       const redeemDrug = await RedeemDrug.create({
         DiseaseId: newDisease.id,
-        redeemStatus: "not redeemed",
         paymentStatus: "unpaid",
       });
       res.status(201).json(newDisease);

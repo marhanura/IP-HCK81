@@ -25,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       diagnose: DataTypes.STRING,
       recommendation: DataTypes.STRING,
+      status: DataTypes.STRING,
       UserId: DataTypes.INTEGER,
-      // DiseaseDrugId: DataTypes.INTEGER,
     },
     {
       sequelize,

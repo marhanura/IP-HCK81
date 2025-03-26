@@ -24,12 +24,6 @@ module.exports = {
       midtransToken: {
         type: Sequelize.STRING,
       },
-      methodPayment: {
-        type: Sequelize.STRING,
-      },
-      redeemStatus: {
-        type: Sequelize.STRING,
-      },
       paymentStatus: {
         type: Sequelize.STRING,
       },
