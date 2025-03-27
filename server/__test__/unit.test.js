@@ -59,7 +59,7 @@ beforeAll(async () => {
       symptoms: "fever, headache",
       diagnose: "Common Cold",
       recommendation: "Rest and drink plenty of fluids.",
-      status: "not redemeed",
+      status: "not redeemed",
       createdAt: new Date(),
       updatedAt: new Date(),
       UserId: 1,

@@ -69,7 +69,7 @@ export default function UserDetails() {
           const updateStatus = await api.patch(
             `/redeem-drugs/${diseaseId}`,
             {
-              status: "redemeed",
+              status: "redeemed",
               paymentStatus: "paid",
             },
             {

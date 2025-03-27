@@ -25,8 +25,8 @@ export default function DiseasesPage() {
             Filter by status
           </option>
           <option value="">All Status</option>
-          <option value="not redeemed">Not redemeed</option>
-          <option value="redeemed">Redemeed</option>
+          <option value="not redeemed">Not redeemed</option>
+          <option value="redeemed">Redeemed</option>
         </select>
       </div>
       <div className="flex flex-wrap gap-4 justify-center m-5">
