@@ -177,6 +177,7 @@ class Controller {
       }
       res.status(200).json(redeemDrug);
     } catch (error) {
+      console.log("🐄 - redeemDrug - error:", error);
       next(error);
     }
   }
