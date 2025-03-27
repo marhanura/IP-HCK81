@@ -15,12 +15,6 @@ class Controller {
   static async register(req, res, next) {
     try {
       const user = await User.create(req.body);
-      if (!user) {
-        throw {
-          name: "BadRequest",
-          message: "Please check your input",
-        };
-      }
       res.status(201).json({
         id: user.id,
         email: user.email,
@@ -127,19 +121,6 @@ class Controller {
     }
   }
 
-  static async getDrugById(req, res, next) {
-    try {
-      const { drugId } = req.params;
-      const drug = await Drug.findByPk(drugId);
-      if (!drug) {
-        throw { name: "NotFound", message: "Drug not found" };
-      }
-      res.status(200).json(drug);
-    } catch (error) {
-      next(error);
-    }
-  }
-
   static async redeemDrug(req, res, next) {
     try {
       let { diseaseId } = req.params;
@@ -147,10 +128,6 @@ class Controller {
         where: { DiseaseId: diseaseId },
         include: Drug,
       });
-      console.log(
-        "🐄 - Controller - redeemDrug - prescribedDrugs:",
-        prescribedDrugs
-      );
       if (!prescribedDrugs || prescribedDrugs.length === 0) {
         throw {
           name: "BadRequest",
@@ -180,11 +157,6 @@ class Controller {
       };
 
       const midtransToken = await snap.createTransaction(parameter);
-      console.log(
-        "🐄 - Controller - redeemDrug - midtransToken:",
-        midtransToken
-      );
-
       let redeemDrug = await RedeemDrug.findOne({
         where: { DiseaseId: diseaseId },
       });
@@ -204,7 +176,6 @@ class Controller {
       }
       res.status(200).json(redeemDrug);
     } catch (error) {
-      console.log("🐄 - Controller - redeemDrug - error:", error);
       next(error);
     }
   }
@@ -212,25 +183,25 @@ class Controller {
   static async updateStatus(req, res, next) {
     try {
       let { diseaseId } = req.params;
-      let { paymentStatus } = req.body;
+      let { paymentStatus, status } = req.body;
       let redeemDrug = await RedeemDrug.findOne({
         where: { DiseaseId: diseaseId },
       });
-      if (!redeemDrug) {
+      if (!redeemDrug || redeemDrug.length === 0) {
         throw { name: "NotFound", message: "Redeem Drug not found" };
       }
       let disease = await Disease.findByPk(diseaseId);
-      if (!disease) {
+      if (!disease || disease.length === 0) {
         throw { name: "NotFound", message: "Disease not found" };
       }
       if (req.body.length === 0) {
         throw { name: "BadRequest", message: "Please specify the status" };
       }
-      await disease.update({ status: "redeemed" });
+      await disease.update({ status });
       await redeemDrug.update({
         paymentStatus,
       });
-      res.status(200).json(redeemDrug);
+      res.status(200).json({ redeemDrug, disease });
     } catch (error) {
       next(error);
     }
@@ -262,8 +233,8 @@ class Controller {
         order: [["createdAt", "desc"]],
       };
 
-      if (filter && filter.status) {
-        options.where.status = filter.status;
+      if (filter) {
+        options.where.status = filter;
       }
 
       let data = await Disease.findAll(options);
@@ -386,7 +357,7 @@ class Controller {
         throw { name: "NotFound", message: "Disease not found" };
       }
       await disease.destroy();
-      res.status(200).json({ message: `Disease ${disease.diagnose} deleted` });
+      res.status(200).json({ message: `Disease deleted` });
     } catch (error) {
       next(error);
     }
@@ -420,20 +391,6 @@ class Controller {
         order: [["createdAt", "desc"]],
       });
       res.status(200).json(users);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async updateUser(req, res, next) {
-    try {
-      const { userId } = req.params;
-      const user = await User.findByPk(userId);
-      if (!user) {
-        throw { name: "NotFound", message: "User not found" };
-      }
-      await user.update(req.body);
-      res.status(200).json(user);
     } catch (error) {
       next(error);
     }

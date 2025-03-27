@@ -18,7 +18,7 @@ export default function Card({
         <p>{info}</p>
         <div className="card-actions justify-end">
           <Link to={linkTo}>
-            <button className="btn btn-primary" onClick={onClick}>
+            <button className="btn btn-accent" onClick={onClick}>
               {buttonText}
             </button>
           </Link>

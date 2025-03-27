@@ -1,8 +1,4 @@
-import {
-  buildCreateSlice,
-  createAsyncThunk,
-  createSlice,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../helpers/api";
 
 const userSlice = createSlice({

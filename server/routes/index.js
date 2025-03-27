@@ -10,7 +10,6 @@ router.post("/register", Controller.register);
 router.post("/login", Controller.login);
 router.post("/google-login", Controller.googleLogin);
 router.get("/drugs", Controller.getAllDrugs);
-router.get("/drugs/:drugId", Controller.getDrugById);
 router.use(authentication);
 router.get("/redeem-drugs/:diseaseId", Controller.redeemDrug);
 router.patch(
@@ -29,7 +28,6 @@ router.post(
   Controller.addDrugToDisease
 );
 router.get("/users", authorization, Controller.getAllUsers);
-router.put("/users/:userId", authorization, Controller.updateUser);
 router.delete("/users/:userId", authorization, Controller.deleteUser);
 
 module.exports = router;

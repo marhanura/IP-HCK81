@@ -22,7 +22,7 @@ export default function UsersPage() {
             {usersList.data.map((user) => (
               <Card
                 key={user.id}
-                title={user.email}
+                title={user.username}
                 description={user.role}
                 buttonText="Add Disease"
                 linkTo={`/diseases/add/${user.id}`}
