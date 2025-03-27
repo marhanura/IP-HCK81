@@ -11,6 +11,7 @@ export default function DrugList() {
   const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
   const dispatch = useDispatch();
   const diseaseId = localStorage.getItem("diseaseId");
+  console.log("🐄 - DrugList - diseaseId:", diseaseId);
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -19,29 +20,30 @@ export default function DrugList() {
   async function addDrug(drugId) {
     // e.preventDefault();
     try {
-      if (!localStorage.getItem("diseaseId")) {
+      if (diseaseId === null) {
+        await navigate("/diseases");
         localStorage.setItem("drugId", drugId);
-        navigate("/diseases");
+        // localStorage.removeItem("drugId");
+      } else {
+        const response = await api.post(
+          `/diseases/${diseaseId}/${drugId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          }
+        );
+        localStorage.removeItem("diseaseId");
+        console.log("🐄 - addDrug - response:", response);
+        await Swal.fire({
+          text: "New drug added successfully",
+          icon: "success",
+        });
       }
-      const response = await api.post(
-        `/diseases/${diseaseId}/${drugId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        }
-      );
-
-      localStorage.removeItem("diseaseId");
-      console.log("🐄 - addDrug - response:", response);
-      await Swal.fire({
-        text: "New drug added successfully",
-        icon: "success",
-      });
     } catch (error) {
       console.log("🐄 - addDrug - error:", error);
-      Swal.fire({ text: error.response.data.message, icon: "error" });
+      // Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }
 

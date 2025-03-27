@@ -7,7 +7,14 @@ const {
 } = require("@jest/globals");
 const request = require("supertest");
 const app = require("../app");
-const { User, Disease, Drug, sequelize } = require("../models");
+const {
+  User,
+  Disease,
+  DiseaseDrug,
+  RedeemDrug,
+  Drug,
+  sequelize,
+} = require("../models");
 const { signToken } = require("../helpers/jwt");
 const { hashPassword } = require("../helpers/bcrypt");
 
@@ -17,6 +24,7 @@ let accessTokenNakes;
 beforeAll(async () => {
   const users = [
     {
+      username: "nakes1",
       email: "nakes1@mail.com",
       password: hashPassword("nakes1"),
       role: "tenaga kesehatan",
@@ -24,6 +32,7 @@ beforeAll(async () => {
       updatedAt: new Date(),
     },
     {
+      username: "pasien1",
       email: "pasien1@mail.com",
       password: hashPassword("pasien1"),
       role: "pasien",
@@ -38,8 +47,33 @@ beforeAll(async () => {
     drug.updatedAt = new Date();
     return drug;
   });
+
+  const disease = [
+    {
+      symptoms: "fever, headache",
+      diagnose: "Common Cold",
+      recommendation: "Rest and drink plenty of fluids.",
+      status: "not redemeed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      UserId: 1,
+    },
+  ];
+
+  const redeemDrug = [
+    {
+      DiseaseId: 1,
+      totalPrice: 10000,
+      midtransToken: "ff114419-32c4-44b2-ae0d-27c8399bb9b9",
+      paymentStatus: "pending",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
   await sequelize.queryInterface.bulkInsert("Users", users);
   await sequelize.queryInterface.bulkInsert("Drugs", drugs);
+  await sequelize.queryInterface.bulkInsert("Diseases", disease);
   const nakes = await User.findOne({ where: { role: "tenaga kesehatan" } });
   accessTokenNakes = signToken({ id: nakes.id });
   const pasien = await User.findOne({ where: { role: "pasien" } });
@@ -57,11 +91,26 @@ afterAll(async () => {
     restartIdentity: true,
     cascade: true,
   });
+  await sequelize.queryInterface.bulkDelete("Diseases", null, {
+    truncate: true,
+    restartIdentity: true,
+    cascade: true,
+  });
+});
+
+describe("GET /", () => {
+  test("Should return welcome message", async () => {
+    const res = await request(app).get("/");
+
+    expect(res.status).toBe(200);
+    expect(res.text).toBe("Welcome to Zehat, your health zolution");
+  });
 });
 
 describe("POST /register", () => {
   test("Successfully register a new user", async () => {
     const newUser = {
+      username: "pasien2",
       email: "pasien2@mail.com",
       password: "pasien2",
       role: "pasien",
@@ -73,8 +122,21 @@ describe("POST /register", () => {
     expect(res.body).toHaveProperty("email", newUser.email);
   });
 
-  test("Should return 400 if email is empty", async () => {
+  test("Should return 400 if username is missing", async () => {
     const newUser = {
+      email: "pasien2@mail.com",
+      password: "pasien2",
+      role: "pasien",
+    };
+
+    const res = await request(app).post("/register").send(newUser);
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Email is required");
+  });
+
+  test("Should return 400 if email is missing", async () => {
+    const newUser = {
+      username: "pasien2",
       password: "pasien2",
       role: "pasien",
     };
@@ -86,6 +148,7 @@ describe("POST /register", () => {
 
   test("Should return 400 if email format is invalid", async () => {
     const newUser = {
+      username: "pasien2",
       email: "pasien2",
       password: "pasien2",
       role: "pasien",
@@ -98,6 +161,7 @@ describe("POST /register", () => {
 
   test("Should return 400 if email is already registered", async () => {
     const newUser = {
+      username: "pasien2",
       email: "pasien1@mail.com",
       password: "pasien1",
       role: "pasien",
@@ -110,6 +174,7 @@ describe("POST /register", () => {
 
   test("Should return 400 if password is less than 5 characters", async () => {
     const newUser = {
+      username: "pasien2",
       email: "pasien2@mail.com",
       password: "pasi",
       role: "pasien",
@@ -122,6 +187,7 @@ describe("POST /register", () => {
 
   test("Should return 400 if role is empty", async () => {
     const newUser = {
+      username: "pasien2",
       email: "pasien2@mail.com",
       password: "pasien2",
     };
@@ -189,16 +255,47 @@ describe("POST /login", () => {
 });
 
 describe(`POST /google-login`, () => {
-  test("Login successfully", async () => {
-    const res = await request(app).post("/google-login");
+  test("Should successfully log in an existing user with Google", async () => {
+    jest.spyOn(OAuth2Client.prototype, "verifyIdToken").mockResolvedValue({
+      getPayload: () => ({
+        email: "existinguser@mail.com",
+        name: "Existing User",
+      }),
+    });
+
+    await User.create({
+      username: "Existing User",
+      email: "existinguser@mail.com",
+      password: "randompassword",
+      role: "pasien",
+    });
+
+    const res = await request(app).post("/google-login").send({
+      googleToken: "valid-google-token",
+    });
+
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("access_token");
+    expect(res.body).toHaveProperty("email", "existinguser@mail.com");
   });
 
-  test("No google token", async () => {
-    const res = await request(app).post("/google-login");
+  test("Should return 400 if Google token is missing", async () => {
+    const res = await request(app).post("/google-login").send({});
+
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe("Google token required");
+    expect(res.body).toHaveProperty("message", "Google token required");
+  });
+
+  test("Should handle invalid Google token", async () => {
+    jest
+      .spyOn(OAuth2Client.prototype, "verifyIdToken")
+      .mockRejectedValue(new Error("Invalid token"));
+
+    const res = await request(app)
+      .post("/google-login")
+      .send({ googleToken: "invalid-token" });
+
+    expect(res.status).toBe(500);
   });
 });
 
@@ -207,10 +304,69 @@ describe("GET /drugs", () => {
     const res = await request(app).get("/drugs");
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("data");
-    expect(res.body).toHaveProperty("totalPages");
-    expect(res.body).toHaveProperty("currentPage");
     expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body).toEqual({
+      totalPages: 1,
+      currentPage: 1,
+      dataPerPage: 9,
+    });
+  });
+
+  test("Should filter drugs by search query", async () => {
+    const res = await request(app).get("/drugs?search=Paracetamol");
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty("name", "Paracetamol");
+  });
+
+  test("should return empty array if no drugs match search", async () => {
+    const res = await request(app).get("/drugs?search=nonexistent");
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBe(0);
+    expect(res.body.totalData).toBe(0);
+  });
+
+  test("should handle pagination correctly", async () => {
+    const res1 = await request(app).get("/drugs?page[size]=2&page[number]=1");
+    expect(res1.status).toBe(200);
+    expect(res1.body.data.length).toBe(2);
+    expect(res1.body.totalPages).toBe(2);
+    expect(res1.body.currentPage).toBe(1);
+    expect(res1.body.dataPerPage).toBe(2);
+
+    // Second page with 2 items per page
+    const res2 = await request(app).get("/drugs?page[size]=2&page[number]=2");
+    expect(res2.status).toBe(200);
+    expect(res2.body.data.length).toBe(1);
+    expect(res2.body.currentPage).toBe(2);
+  });
+
+  test("should handle invalid page number gracefully", async () => {
+    const res = await request(app).get("/drugs?page[number]=0");
+    expect(res.status).toBe(200);
+    expect(res.body.currentPage).toBe(1); // Should default to 1
+  });
+
+  test("should handle invalid page size gracefully", async () => {
+    const res = await request(app).get("/drugs?page[size]=abc");
+    expect(res.status).toBe(200);
+    expect(res.body.dataPerPage).toBe(9); // Should default to 9
+  });
+
+  test("should handle case-insensitive search", async () => {
+    const res = await request(app).get("/drugs?search=PARA");
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].name).toBe("Paracetamol");
+  });
+
+  test("should return correct pagination metadata", async () => {
+    const res = await request(app).get("/drugs?page[size]=1&page[number]=2");
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      currentPage: 2,
+      dataPerPage: 1,
+    });
   });
 });
 
@@ -229,12 +385,27 @@ describe("GET /drugs/:drugId", () => {
     expect(res.status).toBe(404);
     expect(res.body.message).toBe("Drug not found");
   });
+
+  test("Should handle pagination correctly", async () => {
+    const res = await request(app).get("/drugs?page[number]=1&page[size]=5");
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBe(5);
+    expect(res.body.totalPages).toBeGreaterThanOrEqual(1);
+  });
+
+  test("Should return empty array if no drugs match search", async () => {
+    const res = await request(app).get("/drugs?search=nonexistentdrug");
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBe(0);
+  });
 });
 
-describe("POST /redeem-drug/:diseaseId", () => {
-  test("should successfully redeem drugs for a disease", async () => {
+describe("POST /redeem-drugs/:diseaseId", () => {
+  test("Should successfully redeem drugs for a disease", async () => {
     const res = await request(app)
-      .post(`/redeem-drug/1`)
+      .post(`/redeem-drugs/1`)
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(200);
@@ -245,13 +416,13 @@ describe("POST /redeem-drug/:diseaseId", () => {
     expect(res.body).toHaveProperty("paymentStatus", "unpaid");
   });
 
-  test("should return 400 if no drugs are prescribed for the disease", async () => {
+  test("Should return 400 if no drugs are prescribed for the disease", async () => {
     const newDisease = await Disease.create({
       diagnose: "unknown",
     });
 
     const res = await request(app)
-      .post(`/redeem-drug/${newDisease.id}`)
+      .post(`/redeem-drugs/${newDisease.id}`)
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(400);
@@ -266,7 +437,7 @@ describe("POST /redeem-drug/:diseaseId", () => {
       diagnose: "unknown",
     });
 
-    const res = await request(app).post(`/redeem-drug/${newDisease.id}`);
+    const res = await request(app).post(`/redeem-drugs/${newDisease.id}`);
 
     expect(res.status).toBe(401);
     expect(res.body.message).toHaveProperty("Invalid Token");
@@ -274,7 +445,7 @@ describe("POST /redeem-drug/:diseaseId", () => {
 
   test("should return 404 if the disease does not exist", async () => {
     const res = await request(app)
-      .post(`/redeem-drug/9999`)
+      .post(`/redeem-drugs/9999`)
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(404);
@@ -292,6 +463,7 @@ describe("GET /diseases/users/:userId", () => {
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body).toHaveProperty("Diseases");
   });
 
   test("should return 401 if token is invalid/no token", async () => {
@@ -301,12 +473,80 @@ describe("GET /diseases/users/:userId", () => {
     expect(res.body.message).toHaveProperty("Invalid Token");
   });
 
-  test("Should return 404 if disease not found", async () => {
-    const res = await request(app).get("/drugs/999");
+  test("Should return 404 if user not found", async () => {
+    const res = await request(app).get("/diseases/users/999");
 
     expect(res.status).toBe(404);
     expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body.message).toBe("Disease not found");
+  });
+});
+
+describe("PATCH /redeem-drugs/:diseaseId", () => {
+  test("Should update disease status successfully", async () => {
+    const res = await request(app)
+      .patch("/redeem-drugs/1")
+      .send({ paymentStatus: "paid", status: "redeemed" })
+      .set("Authorization", `Bearer ${accessTokenNakes}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body[0]).toHaveProperty("status", "redeemed");
+    expect(res.body[1]).toHaveProperty("paymentStatus", "paid");
+  });
+
+  test("Should return 400 if no input", async () => {
+    const res = await request(app)
+      .patch("/redeem-drugs/1")
+      .send({ paymentStatus: "", status: "" })
+      .set("Authorization", `Bearer ${accessTokenNakes}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toHaveProperty("Please specify the status");
+  });
+
+  test("Should return 401 if no token", async () => {
+    const res = await request(app).patch(`/redeem-drugs/1`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.message).toHaveProperty("Invalid Token");
+  });
+
+  test("Should return 401 if invalid token", async () => {
+    const res = await request(app)
+      .patch(`/redeem-drugs/1`)
+      .set("Authorization", `Bearer token ngaco`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.message).toHaveProperty("Invalid Token");
+  });
+
+  test("Should return 403 if unauthorized", async () => {
+    const res = await request(app)
+      .patch(`/redeem-drugs/1`)
+      .set("Authorization", `Bearer ${accessTokenPasien}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toHaveProperty(
+      "You are not authorized to do this action"
+    );
+  });
+
+  test("Should return 404 if disease not found", async () => {
+    const res = await request(app)
+      .patch(`/redeem-drugs/9999`)
+      .set("Authorization", `Bearer ${accessTokenNakes}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toHaveProperty("Disease not found");
+  });
+
+  test("Should return 404 if drug to redeem not found", async () => {
+    const res = await request(app)
+      .patch(`/redeem-drugs/9999`)
+      .set("Authorization", `Bearer ${accessTokenNakes}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toHaveProperty("Redeem Drug not found");
   });
 });
 
@@ -321,36 +561,26 @@ describe("GET /diseases", () => {
     expect(res.body[0]).toHaveProperty("symptoms");
     expect(res.body[0]).toHaveProperty("diagnose");
     expect(res.body[0]).toHaveProperty("recommendation");
+    expect(res.body[0]).toHaveProperty("status");
   });
 
-  test("should retrieve diseases sorted by creation date in ascending order", async () => {
+  test("Should filter diseases by status", async () => {
     const res = await request(app)
-      .get("/diseases?sort=ASC")
+      .get("/diseases?filter[status]=redeemed")
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body[0].createdAt).toBe("2023-01-01T00:00:00.000Z");
   });
 
-  test("should retrieve diseases sorted by creation date in descending order", async () => {
-    const res = await request(app)
-      .get("/diseases?sort=DESC")
-      .set("Authorization", `Bearer ${accessTokenNakes}`);
-
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body[0].createdAt).toBe("2023-02-01T00:00:00.000Z");
-  });
-
-  test("should return 401 if token is invalid or missing", async () => {
+  test("Should return 401 if token is invalid or missing", async () => {
     const res = await request(app).get("/diseases");
 
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "Invalid Token");
   });
 
-  test("should return 403 if token is unauthorized", async () => {
+  test("Should return 403 if token is unauthorized", async () => {
     const res = await request(app)
       .get("/diseases")
       .set("Authorization", `Bearer ${accessTokenPasien}`);
@@ -363,27 +593,12 @@ describe("GET /diseases", () => {
   });
 });
 
-describe("POST /diseases/users/:userId", () => {
+describe("POST /diseases/add/:userId", () => {
   test("should successfully add a disease for a user", async () => {
-    const symptoms = "fever, headache";
-
-    // Mock the AI model response
-    jest.spyOn(model, "generateContent").mockResolvedValue({
-      response: {
-        text: () =>
-          JSON.stringify({
-            diagnose: "Common Cold",
-            recommendation: "Rest and drink plenty of fluids.",
-            drugs: "Paracetamol, Ibuprofen",
-            DrugId: "1, 2",
-          }),
-      },
-    });
-
     const res = await request(app)
-      .post(`/diseases/user/1`)
+      .post(`/diseases/add/1`)
       .set("Authorization", `Bearer ${accessTokenNakes}`)
-      .send({ symptoms });
+      .send({ symptoms: "fever, headache" });
 
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("symptoms", symptoms);
@@ -394,9 +609,20 @@ describe("POST /diseases/users/:userId", () => {
     );
   });
 
-  test("should return 400 if symptoms are missing", async () => {
+  // test("Should get disease status by its default value upon creation", async () => {
+  //   const res = await request(app)
+  //     .get("/diseases/add/1")
+  //     .set("Authorization", `Bearer ${accessTokenNakes}`)
+  //     .send({ symptoms: "fever, headache" });
+
+  //   expect(res.status).toBe(200);
+  //   expect(Array.isArray(res.body)).toBe(true);
+  //   expect(res.body).toHaveProperty("status", "not redemeed");
+  // });
+
+  test("Should return 400 if symptoms are missing", async () => {
     const res = await request(app)
-      .post(`/diseases/user/1`)
+      .post(`/diseases/add/1`)
       .set("Authorization", `Bearer ${accessTokenNakes}`)
       .send({});
 
@@ -406,7 +632,7 @@ describe("POST /diseases/users/:userId", () => {
 
   test("should return 403 if token is unauthorized", async () => {
     const res = await request(app)
-      .post(`/diseases/user/1`)
+      .post(`/diseases/add/1`)
       .set("Authorization", `Bearer ${accessTokenPasien}`)
       .send({ symptoms: "fever, headache" });
 
@@ -419,7 +645,7 @@ describe("POST /diseases/users/:userId", () => {
 
   test("should return 404 if user is not found", async () => {
     const res = await request(app)
-      .post(`/diseases/user/9999`)
+      .post(`/diseases/add/9999`)
       .set("Authorization", `Bearer ${accessTokenNakes}`)
       .send({ symptoms: "fever, headache" });
 
@@ -429,7 +655,7 @@ describe("POST /diseases/users/:userId", () => {
 
   test("should return 400 if AI cannot analyze the symptoms", async () => {
     // Mock the AI model response
-    jest.spyOn(model, "generateContent").mockResolvedValue({
+    jest.spyOn(Disease, "generateContent").mockResolvedValue({
       response: {
         text: () =>
           JSON.stringify({
@@ -439,7 +665,7 @@ describe("POST /diseases/users/:userId", () => {
     });
 
     const res = await request(app)
-      .post(`/diseases/user/1`)
+      .post(`/diseases/add/1`)
       .set("Authorization", `Bearer ${accessTokenNakes}`)
       .send({ symptoms: "unknown symptoms" });
 
@@ -449,23 +675,28 @@ describe("POST /diseases/users/:userId", () => {
 });
 
 describe("GET /diseases/:diseaseId", () => {
-  test("Should retrieve disease by its id successfully", async () => {
+  test("Should retrieve disease by its id", async () => {
     const res = await request(app)
       .get("/diseases/1")
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body.data)).toBe(true);
-    expect(res.body).toHaveProperty("symptoms");
-    expect(res.body).toHaveProperty("diagnose");
-    expect(res.body).toHaveProperty("recommendation");
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test("Should return 401 if invalid/no token", async () => {
+  test("Should return 401 if no token", async () => {
     const res = await request(app).get("/diseases/1");
 
     expect(res.status).toBe(401);
-    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.message).toBe("Invalid Token");
+  });
+
+  test("Should return 401 if invalid token", async () => {
+    const res = await request(app)
+      .get("/diseases/1")
+      .set("Authorization", `Bearer access token ngaco`);
+
+    expect(res.status).toBe(401);
     expect(res.body.message).toBe("Invalid Token");
   });
 
@@ -475,7 +706,6 @@ describe("GET /diseases/:diseaseId", () => {
       .set("Authorization", `Bearer ${accessTokenPasien}`);
 
     expect(res.status).toBe(403);
-    expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body.message).toBe("You are not authorized to do this action");
   });
 
@@ -485,7 +715,6 @@ describe("GET /diseases/:diseaseId", () => {
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(404);
-    expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body.message).toBe("Disease not found");
   });
 });
@@ -539,8 +768,17 @@ describe("POST /diseases/:diseaseId/:drugId", () => {
     expect(res.body).toHaveProperty("message", "Drug added to disease");
   });
 
-  test("Should return 401 if invalid/no token", async () => {
+  test("Should return 401 if no token", async () => {
     const res = await request(app).post(`/diseases/1/1`);
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "Invalid Token");
+  });
+
+  test("Should return 401 if no token", async () => {
+    const res = await request(app)
+      .post(`/diseases/1/1`)
+      .set("Authorization", `Bearer token ngaco`);
 
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "Invalid Token");
@@ -589,8 +827,17 @@ describe("GET /users", () => {
     expect(res.body[0]).toHaveProperty("role");
   });
 
-  test("Should return 401 if invalid/no token", async () => {
+  test("Should return 401 if no token", async () => {
     const res = await request(app).get("/users");
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "Invalid Token");
+  });
+
+  test("Should return 401 if invalid token", async () => {
+    const res = await request(app)
+      .get("/users")
+      .set("Authorization", `Bearer token ngaco`);
 
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "Invalid Token");
@@ -609,45 +856,29 @@ describe("GET /users", () => {
   });
 });
 
-describe("PUT /users/:userId", () => {
-  test("Should update a user successfully", async () => {
-    const updateUser = {
-      role: "tenaga kesehatan",
-    };
-
+describe("DELETE /users/:userId", () => {
+  test("Delete a user successfully", async () => {
     const res = await request(app)
-      .put("/users/1")
-      .set("Authorization", `Bearer ${accessTokenNakes}`)
-      .send(updateUser);
+      .delete("/users/1")
+      .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("message", "User updated");
+    expect(res.body).toHaveProperty("message", "User deleted");
   });
 
-  test("Should return 400 if no input", async () => {
+  test("Should return 401 if doesn't have access token/invalid token", async () => {
     const res = await request(app)
-      .put("/users/1")
-      .set("Authorization", `Bearer ${accessTokenNakes}`)
-      .send({});
-
-    expect(res.status).toBe(400);
-  });
-
-  test("Should return 401 if invalid/no token", async () => {
-    const updateUser = {
-      role: "tenaga kesehatan",
-    };
-    const res = await request(app).put("/users/1").send(updateUser);
+      .delete(`/users/1`)
+      .set("Authorization", `Bearer token ngaco`);
 
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "Invalid Token");
   });
 
-  test("Should return 403 if token is unauthorized", async () => {
+  test("Should return 403 if role is unauthorized", async () => {
     const res = await request(app)
-      .put("/users/1")
-      .set("Authorization", `Bearer ${accessTokenPasien}`)
-      .send({ role: "tenaga kesehatan" });
+      .delete(`/users/1`)
+      .set("Authorization", `Bearer ${accessTokenPasien}`);
 
     expect(res.status).toBe(403);
     expect(res.body).toHaveProperty(
@@ -657,56 +888,62 @@ describe("PUT /users/:userId", () => {
   });
 
   test("Should return 404 if user not found", async () => {
-    const updateUser = {
-      role: "tenaga kesehatan",
-    };
     const res = await request(app)
-      .put("/users/9999")
-      .set("Authorization", `Bearer ${accessTokenNakes}`)
-      .send(updateUser);
+      .delete(`/users/9999`)
+      .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(404);
     expect(res.body).toHaveProperty("message", "User not found");
   });
 });
 
-describe("DELETE /user/:userId", () => {
-  test("Delete a user successfully", async () => {
+describe("Authentication middleware", () => {
+  test("Should pass authentication with a valid token", async () => {
     const res = await request(app)
-      .delete("/user/1")
+      .get("/diseases")
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("message", "User deleted");
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body[0]).toHaveProperty("symptoms");
   });
 
-  test("Should return 401 if doesn't have access token/invalid token", async () => {
-    const res = await request(app)
-      .delete(`/user/1`)
-      .set("Authorization", `Bearer ngaco`);
+  test("Should return 401 if no token is provided", async () => {
+    const res = await request(app).get("/diseases");
 
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "Invalid Token");
   });
 
-  test("Should return 403 if role is unauthorized", async () => {
+  test("Should return 401 if invalid token is provided", async () => {
     const res = await request(app)
-      .delete(`/user/1`)
+      .get("/diseases")
+      .set("Authorization", `Bearer token ngaco`);
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "Invalid Token");
+  });
+
+  test("Should return 401 if the token belongs to a non-existent user", async () => {
+    const fakeToken = signToken({ id: 9999 });
+
+    const res = await request(app)
+      .get("/diseases")
+      .set("Authorization", `Bearer ${fakeToken}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "Invalid Token");
+  });
+
+  test("Should return 403 if token is unauthorized", async () => {
+    const res = await request(app)
+      .get("/diseases")
       .set("Authorization", `Bearer ${accessTokenPasien}`);
 
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(403);
     expect(res.body).toHaveProperty(
       "message",
       "You are not authorized to do this action"
     );
-  });
-
-  test("Should return 404 if user not found", async () => {
-    const res = await request(app)
-      .delete(`/user/9999`)
-      .set("Authorization", `Bearer ${accessTokenNakes}`);
-
-    expect(res.status).toBe(404);
-    expect(res.body).toHaveProperty("message", "User not found");
   });
 });

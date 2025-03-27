@@ -1,11 +1,6 @@
-import {
-  buildCreateSlice,
-  createAsyncThunk,
-  createSlice,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../helpers/api";
 import Swal from "sweetalert2";
-import axios from "axios";
 
 const diseaseSlice = createSlice({
   name: "disease",
@@ -39,7 +34,7 @@ export const fetchDiseases = createAsyncThunk(
   "disease/fetchDiseases",
   async (filter) => {
     try {
-      const response = await api.get(`/diseases?filter[status]=${filter}`, {
+      const response = await api.get(`/diseases?filter=${filter}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },

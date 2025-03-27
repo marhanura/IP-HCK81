@@ -13,7 +13,6 @@ import UsersPage from "./pages/Users.page";
 import AddDisease from "./pages/AddDisease.page";
 import UserDetails from "./pages/UserDetails.page";
 import DiseaseDetail from "./pages/DiseaseDetail.page";
-import PaymentPage from "./pages/Payment.page";
 
 function App() {
   return (
@@ -28,7 +27,6 @@ function App() {
             <Route path="/diseases/users/:userId" element={<UserDetails />} />
             <Route path="/diseases/:diseaseId" element={<DiseaseDetail />} />
             <Route path="/users" element={<UsersPage />} />
-            <Route path="/redeem-drugs/:diseaseId" element={<PaymentPage />} />
           </Route>
           <Route path="/" element={<LoginLayout />}>
             <Route path="/login" element={<LoginPage />} />

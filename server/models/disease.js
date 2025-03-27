@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       diagnose: DataTypes.STRING,
       recommendation: DataTypes.STRING,
-      status: DataTypes.STRING,
+      status: { type: DataTypes.STRING, defaultValue: "not redeemed" },
       UserId: DataTypes.INTEGER,
     },
     {

@@ -11,7 +11,7 @@ export default function DiseasesPage() {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    dispatch(fetchDiseases());
+    dispatch(fetchDiseases(filter));
   }, [filter]);
 
   return (
