@@ -51,6 +51,43 @@ export default function UserDetails() {
     fetchDiseaseByUser();
   }, []);
 
+  async function redeemDrugs(diseaseId) {
+    try {
+      const response = await api.get(`/redeem-drugs/${diseaseId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      console.log("🐄 - redeemDrugs - response:", response.data);
+      window.snap.pay(response.data.midtransToken, {
+        onSuccess: async function (result) {
+          console.log("🐄 - redeemDrugs - result:", result);
+          Swal.fire({
+            text: "Payment success",
+            icon: "success",
+          });
+          const updateStatus = await api.patch(
+            `/redeem-drugs/${diseaseId}`,
+            {
+              status: "redemeed",
+              paymentStatus: "paid",
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
+          console.log("🐄 - updateStatus:", updateStatus);
+          navigate("/");
+        },
+      });
+    } catch (error) {
+      console.log("🐄 - redeemDrugs - error:", error);
+      Swal.fire({ text: error.response.data.message, icon: "error" });
+    }
+  }
+
   return (
     <section className="flex-row h-100 justify-center">
       <div className="text-center">
@@ -69,7 +106,7 @@ export default function UserDetails() {
             description={`Symptoms: ${disease.symptoms}`}
             info={`Recommendation: ${disease.recommendation}`}
             buttonText="Redeem Drugs"
-            linkTo={`/redeem-drugs/${disease.id}`}
+            onClick={() => redeemDrugs(disease.id)}
             buttonText2={"See Details"}
             linkTo2={`/diseases/${disease.id}`}
           />

@@ -33,7 +33,6 @@ export default function DiseaseDetail() {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
-      console.log("🐄 - redeemDrugs - response:", response.data);
       window.snap.pay(response.data.midtransToken, {
         onSuccess: async function (result) {
           console.log("🐄 - redeemDrugs - result:", result);

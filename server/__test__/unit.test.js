@@ -579,13 +579,11 @@ describe("GET /diseases/users/:userId", () => {
 
 describe("PATCH /redeem-drugs/:diseaseId", () => {
   test("Should update disease and redeem drug status successfully", async () => {
-    // Pastikan terdapat disease dan redeemDrug dengan DiseaseId = 1
     const res = await request(app)
       .patch("/redeem-drugs/1")
       .send({ paymentStatus: "paid", status: "redeemed" })
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
-    // Sesuai controller updateStatus mengembalikan objek dengan redeemDrug dan disease
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("redeemDrug");
     expect(res.body).toHaveProperty("disease");
@@ -626,18 +624,15 @@ describe("PATCH /redeem-drugs/:diseaseId", () => {
       .send({ paymentStatus: "paid", status: "redeemed" })
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
-    // Bisa muncul error "Disease not found" atau "Redeem Drug not found"
     expect(res.status).toBe(404);
   });
 
   test("Should update disease and redeem drug status successfully", async () => {
-    // Pastikan terdapat disease dan redeemDrug dengan DiseaseId = 1
     const res = await request(app)
       .patch("/redeem-drugs/1")
       .send({ paymentStatus: "paid", status: "redeemed" })
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
-    // Sesuai controller updateStatus mengembalikan objek dengan redeemDrug dan disease
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("redeemDrug");
     expect(res.body).toHaveProperty("disease");
@@ -661,7 +656,6 @@ describe("PATCH /redeem-drugs/:diseaseId", () => {
       .send({ paymentStatus: "paid", status: "redeemed" })
       .set("Authorization", `Bearer ${accessTokenNakes}`);
 
-    // Bisa muncul error "Disease not found" atau "Redeem Drug not found"
     expect(res.status).toBe(404);
   });
 });
@@ -683,6 +677,7 @@ describe("GET /diseases", () => {
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body[0].status).toBe("redeemed");
   });
 
   test("Should return 401 if token is invalid or missing", async () => {
