@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchDiseaseById } from "../features/diseases/disease.slice";
 import { Link, useNavigate, useParams } from "react-router";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
 
 export default function DiseaseDetail() {
-  //   const disease = useSelector((state) => state.disease.diseases);
-  //   const dispatch = useDispatch();
-  //   console.log("🐄 - DiseaseDetail - diseaseById:", disease);
   const { diseaseId } = useParams();
   const [disease, setDisease] = useState("");
   const navigate = useNavigate();
@@ -28,7 +23,6 @@ export default function DiseaseDetail() {
   }
 
   useEffect(() => {
-    // dispatch(fetchDiseaseById(diseaseId));
     fetchDiseaseById();
   }, []);
 
@@ -130,8 +124,11 @@ export default function DiseaseDetail() {
             <button className="btn btn-secondary" onClick={redeemDrugs}>
               Redeem Drugs
             </button>
-            <button className="btn btn-danger" onClick={deleteDisease}>
-              Redeem Drugs
+            <button
+              className="btn bg-orange-600 text-neutral-content"
+              onClick={deleteDisease}
+            >
+              Delete Disease
             </button>
           </div>
         </div>

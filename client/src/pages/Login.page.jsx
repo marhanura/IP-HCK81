@@ -14,7 +14,9 @@ export default function LoginPage() {
       e.preventDefault();
       const response = await api.post("/login", { email, password });
       localStorage.setItem("access_token", response.data.access_token);
+      console.log("🐄 - handleLogin - response:", response);
       localStorage.setItem("role", response.data.role);
+      localStorage.setItem("userId", response.data.id);
       Swal.fire({ text: "Logged in successfully", icon: "success" });
       navigate("/");
     } catch (error) {

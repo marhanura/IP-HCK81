@@ -1,18 +1,56 @@
 import { fetchDiseases } from "../features/diseases/disease.slice";
-import Pagination from "../components/Pagination";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Card from "../components/Card";
-import { Link } from "react-router";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 export default function DiseasesPage() {
   const diseasesList = useSelector((state) => state.disease.diseases);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("");
+
+  async function redeemDrugs() {
+    try {
+      const response = await api.get(`/redeem-drugs/${diseaseId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      console.log("🐄 - redeemDrugs - response:", response.data);
+      window.snap.pay(response.data.midtransToken, {
+        onSuccess: async function (result) {
+          console.log("🐄 - redeemDrugs - result:", result);
+          Swal.fire({
+            text: "Payment success",
+            icon: "success",
+          });
+          const updateStatus = await api.patch(
+            `/redeem-drugs/${diseaseId}`,
+            {
+              status: "redemeed",
+              paymentStatus: "paid",
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
+          console.log("🐄 - updateStatus:", updateStatus);
+          navigate("/");
+        },
+      });
+    } catch (error) {
+      console.log("🐄 - redeemDrugs - error:", error);
+      Swal.fire({ text: error.response.data.message, icon: "error" });
+    }
+  }
 
   useEffect(() => {
     dispatch(fetchDiseases(filter));
-  }, [filter]);
+  }, [dispatch, filter]);
 
   return (
     <section className="flex-row h-100 justify-center">
@@ -26,7 +64,8 @@ export default function DiseasesPage() {
           <option value="" disabled>
             Filter by status
           </option>
-          <option value="not redemeed">Not redemeed</option>
+          <option value="">All Status</option>
+          <option value="not redeemed">Not redemeed</option>
           <option value="redeemed">Redemeed</option>
         </select>
       </div>
@@ -39,10 +78,8 @@ export default function DiseasesPage() {
                 title={disease.diagnose}
                 description={`Symptoms: ${disease.symptoms}`}
                 info={`Recommendation: ${disease.recommendation}`}
-                buttonText="Redeem Drugs"
-                linkTo={`/redeem-drugs/${disease.id}`}
-                buttonText2={"See Details"}
-                linkTo2={`/diseases/${disease.id}`}
+                buttonText={"See Details"}
+                linkTo={`/diseases/${disease.id}`}
               />
             ))}
           </>
