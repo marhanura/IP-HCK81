@@ -9,7 +9,6 @@ export default function UsersPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // fetchUsers();
     dispatch(fetchUsers());
   }, []);
 
@@ -24,6 +23,7 @@ export default function UsersPage() {
                 key={user.id}
                 title={user.username}
                 description={user.role}
+                info={user.email}
                 buttonText="Add Disease"
                 linkTo={`/diseases/add/${user.id}`}
                 buttonText2="See Details"

@@ -19,8 +19,11 @@ export default function DrugList() {
 
   async function addDrug(drugId) {
     try {
-      if (diseaseId?.length === 0) {
-        navigate("/diseases");
+      if (!localStorage.getItem("diseaseId")) {
+        Swal.fire({
+          text: "Please select a disease first",
+          icon: "warning",
+        });
         localStorage.setItem("drugId", drugId);
       } else {
         const response = await api.post(
@@ -38,6 +41,7 @@ export default function DrugList() {
           text: "New drug added successfully",
           icon: "success",
         });
+        navigate(`/diseases/${diseaseId}`);
       }
     } catch (error) {
       console.log("🐄 - addDrug - error:", error);
@@ -80,10 +84,11 @@ export default function DrugList() {
                 currency: "IDR",
               }).format(drug.price)}
               info={drug.category}
-              buttonText="Prescribe"
-              onClick={() => addDrug(drug.id)}
-              buttonText2="Consult to be prescribed"
-              onClick2={() => navigate(`/diseases/${userId}`)}
+              buttonText="Get Drug"
+              linkTo={role === "pasien" ? `/diseases/add/${userId}` : ""}
+              onClick={
+                role === "tenaga kesehatan" ? () => addDrug(drug.id) : ""
+              }
             />
           ))}
         </div>
