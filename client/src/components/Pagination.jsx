@@ -10,7 +10,7 @@ export default function Pagination({ page, totalPages, setPage }) {
       >
         «
       </button>
-      <button className="join-item btn" disabled>
+      <button className="join-item btn">
         {page} of {totalPages}
       </button>
       <button

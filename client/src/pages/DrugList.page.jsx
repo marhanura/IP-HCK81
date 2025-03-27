@@ -11,19 +11,17 @@ export default function DrugList() {
   const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
   const dispatch = useDispatch();
   const diseaseId = localStorage.getItem("diseaseId");
-  console.log("🐄 - DrugList - diseaseId:", diseaseId);
   const role = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
   async function addDrug(drugId) {
-    // e.preventDefault();
     try {
-      if (diseaseId === null) {
-        await navigate("/diseases");
+      if (diseaseId?.length === 0) {
+        navigate("/diseases");
         localStorage.setItem("drugId", drugId);
-        // localStorage.removeItem("drugId");
       } else {
         const response = await api.post(
           `/diseases/${diseaseId}/${drugId}`,
@@ -43,7 +41,7 @@ export default function DrugList() {
       }
     } catch (error) {
       console.log("🐄 - addDrug - error:", error);
-      // Swal.fire({ text: error.response.data.message, icon: "error" });
+      Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }
 
@@ -77,25 +75,28 @@ export default function DrugList() {
             <Card
               key={drug.id}
               title={drug.name}
-              description={drug.price}
+              description={Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+              }).format(drug.price)}
               info={drug.category}
-              buttonText={
-                role === "tenaga kesehatan"
-                  ? "Prescribe"
-                  : "Consult to be prescribed"
-              }
+              buttonText="Prescribe"
               onClick={() => addDrug(drug.id)}
+              buttonText2="Consult to be prescribed"
+              onClick2={() => navigate(`/diseases/${userId}`)}
             />
           ))}
-          <Pagination
-            page={currentPage}
-            totalPages={totalPages}
-            setPage={setPage}
-          />
         </div>
       ) : (
         <span className="loading loading-spinner text-primary"></span>
       )}
+      <div className="flex justify-center m-5">
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          setPage={setPage}
+        />
+      </div>
     </section>
   );
 }

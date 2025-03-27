@@ -57,7 +57,6 @@ export default function UserDetails() {
         <h1 className="text-2xl m-5 text-center">User Details</h1>
         <p>{user.username}</p>
         <p>{user.email}</p>
-        <button className="btn btn-primary mx-1">Edit User</button>
         <button className="btn btn-secondary" onClick={deleteUser}>
           Delete
         </button>

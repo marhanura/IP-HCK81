@@ -6,7 +6,6 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const midtransClient = require("midtrans-client");
 const { isProduction } = require("midtrans-client/lib/snapBi/snapBiConfig");
 const { Op } = require("sequelize");
-const e = require("express");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -42,7 +41,9 @@ class Controller {
         throw { name: "Unauthorized", message: "Password not matched" };
       }
       const access_token = signToken({ id: user.id });
-      res.status(200).json({ access_token, email, role: user.role });
+      res
+        .status(200)
+        .json({ access_token, email, role: user.role, id: user.id });
     } catch (error) {
       next(error);
     }
