@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 export default function Navbar() {
   const access_token = localStorage.getItem("access_token");
   const role = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   async function handleLogout(e) {
@@ -48,9 +49,18 @@ export default function Navbar() {
               </li>
             </>
           ) : (
-            <li>
-              <a href="/drugs">Drugs List</a>
-            </li>
+            <>
+              <li>
+                <a href="/drugs">Drugs List</a>
+              </li>
+              {userId ? (
+                <li>
+                  <a href={`/diseases/users/${userId}`}>My Page</a>
+                </li>
+              ) : (
+                ""
+              )}
+            </>
           )}
           <li>
             {access_token ? (
@@ -61,19 +71,6 @@ export default function Navbar() {
               <a href="/login">Log In</a>
             )}
           </li>
-          {/* <li>
-            <details>
-              <summary>Parent</summary>
-              <ul className="bg-base-100 rounded-t-none p-2">
-                <li>
-                  <a>Link 1</a>
-                </li>
-                <li>
-                  <a>Link 2</a>
-                </li>
-              </ul>
-            </details>
-          </li> */}
         </ul>
       </div>
     </div>

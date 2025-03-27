@@ -256,6 +256,13 @@ class Controller {
       if (!user) {
         throw { name: "NotFound", message: "User not found" };
       }
+      if (user.role !== "tenaga kesehatan") {
+        throw {
+          name: "Unauthorized",
+          message:
+            "Only health workers can add diseases, please consult directly to the health worker",
+        };
+      }
       let drugsData = await Drug.findAll({ attributes: ["id", "name"] });
       let drugsSorted = drugsData.map((drug) => {
         return { id: drug.id, name: drug.name };

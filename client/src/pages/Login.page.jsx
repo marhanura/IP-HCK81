@@ -14,13 +14,11 @@ export default function LoginPage() {
       e.preventDefault();
       const response = await api.post("/login", { email, password });
       localStorage.setItem("access_token", response.data.access_token);
-      console.log("🐄 - handleLogin - response:", response);
       localStorage.setItem("role", response.data.role);
       localStorage.setItem("userId", response.data.id);
       Swal.fire({ text: "Logged in successfully", icon: "success" });
       navigate("/");
     } catch (error) {
-      console.log("🐄 - handleLogin - error:", error);
       Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }
@@ -76,7 +74,10 @@ export default function LoginPage() {
             Log In
           </button>
         </form>
-        <div id="google-login-button" className="w-full text-center"></div>
+        <div
+          id="google-login-button"
+          className="w-full flex justify-center"
+        ></div>
         <p className="text-center">
           Don't have an account? <a href="/register">Create an account</a>
         </p>
