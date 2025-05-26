@@ -1,15 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
 import Card from "../components/Card";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchDrugs } from "../features/drugs/drug.slice";
 import Pagination from "../components/Pagination";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
 import { useNavigate, useOutletContext } from "react-router";
 import Loading from "../components/Loading";
+import debounce from "lodash.debounce";
 
 export default function DrugList() {
-  const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
+  const { drugs, totalPages, currentPage, loading } = useSelector(
+    (state) => state.drug
+  );
   const dispatch = useDispatch();
   const user = useOutletContext();
   const diseaseId = localStorage.getItem("diseaseId");
@@ -47,7 +50,7 @@ export default function DrugList() {
           Swal.fire({
             icon: "success",
             text: "Drug added to your cart",
-            timer: 2000,
+            timer: 1500,
           });
         }
       } else if (!localStorage.getItem("diseaseId")) {
@@ -57,7 +60,7 @@ export default function DrugList() {
         });
         localStorage.setItem("drugId", drug.id);
       } else {
-        const response = await api.post(
+        await api.post(
           `/diseases/${diseaseId}/${drug.id}`,
           {},
           {
@@ -70,17 +73,38 @@ export default function DrugList() {
         await Swal.fire({
           text: "New drug added successfully",
           icon: "success",
+          timer: 1500,
         });
         navigate(`/diseases/${diseaseId}`);
       }
     } catch (error) {
-      Swal.fire({ text: error.response.data.message, icon: "error" });
+      Swal.fire({
+        text: error.response.data.message,
+        icon: "error",
+        timer: 1500,
+      });
     }
   }
 
+  const debounceSearch = useCallback(
+    debounce((search, page) => {
+      dispatch(fetchDrugs({ search, page }));
+    }, 500),
+    []
+  );
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    setPage(1);
+  };
+
   useEffect(() => {
-    dispatch(fetchDrugs({ search, page }));
-  }, [search, page]);
+    debounceSearch(search, page);
+    return () => {
+      debounceSearch.cancel();
+    };
+  }, [search, page, debounceSearch]);
 
   return (
     <section className="flex-row h-100 justify-center">
@@ -93,7 +117,7 @@ export default function DrugList() {
                 type="text"
                 placeholder="Search drug name"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={handleSearch}
                 className="w-70"
               />
             </label>

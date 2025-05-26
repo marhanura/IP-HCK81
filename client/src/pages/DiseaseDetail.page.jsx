@@ -32,7 +32,6 @@ export default function DiseaseDetail() {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
-      console.log("🐄 - redeemDrugs - response:", response.data.midtransToken);
       window.snap.pay(response.data.midtransToken, {
         onSuccess: async function () {
           Swal.fire({
@@ -40,7 +39,7 @@ export default function DiseaseDetail() {
             icon: "success",
             timer: 3000,
           });
-          const updateStatus = await api.patch(
+          await api.patch(
             `/redeem-drugs/${diseaseId}`,
             {
               status: "redeemed",
@@ -52,7 +51,6 @@ export default function DiseaseDetail() {
               },
             }
           );
-          console.log("🐄 - updateStatus:", updateStatus);
           navigate("/");
         },
       });
@@ -107,7 +105,7 @@ export default function DiseaseDetail() {
             <u>Non-medicinal:</u> {disease?.recommendation}
           </p>
           <p>
-            <strong>Pasien:</strong> {disease.User?.username}
+            <strong>Patient:</strong> {disease.User?.username}
           </p>
           <div className="card-actions justify-end">
             {disease?.status === "redeemed" ? (

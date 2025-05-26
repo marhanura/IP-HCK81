@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
             args: [5],
             msg: "Password must be at least 5 characters",
           },
+          is: {
+            args: /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
+            msg: "Password must contain only letters, numbers, special characters, and no spaces",
+          },
         },
       },
       role: {

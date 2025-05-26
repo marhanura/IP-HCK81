@@ -13,6 +13,8 @@ import UsersPage from "./pages/Users.page";
 import AddDisease from "./pages/AddDisease.page";
 import UserDetails from "./pages/UserDetails.page";
 import DiseaseDetail from "./pages/DiseaseDetail.page";
+import Cart from "./pages/Cart.page";
+import AuthLayout from "./layout/Auth.layout";
 
 function App() {
   return (
@@ -21,16 +23,19 @@ function App() {
         <Routes>
           <Route path="/" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
-            <Route path="/drugs" element={<DrugList />} />
-            <Route path="/diseases" element={<DiseasesPage />} />
-            <Route path="/diseases/add/:userId" element={<AddDisease />} />
-            <Route path="/diseases/users/:userId" element={<UserDetails />} />
-            <Route path="/diseases/:diseaseId" element={<DiseaseDetail />} />
-            <Route path="/users" element={<UsersPage />} />
+            <Route path="drugs" element={<DrugList />} />
+          </Route>
+          <Route path="/" element={<AuthLayout />}>
+            <Route path="cart" element={<Cart />} />
+            <Route path="diseases" element={<DiseasesPage />} />
+            <Route path="diseases/add/:userId" element={<AddDisease />} />
+            <Route path="diseases/users/:userId" element={<UserDetails />} />
+            <Route path="diseases/:diseaseId" element={<DiseaseDetail />} />
+            <Route path="users" element={<UsersPage />} />
           </Route>
           <Route path="/" element={<LoginLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
