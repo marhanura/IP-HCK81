@@ -31,9 +31,9 @@ export default function UserDetails() {
       icon: "question",
       showCancelButton: true,
     })
-      .then((result) => {
+      .then(async (result) => {
         if (result.isConfirmed) {
-          api.delete(`/users/${userId}`, {
+          await api.delete(`/users/${userId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,
             },
@@ -58,7 +58,6 @@ export default function UserDetails() {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
-      console.log("🐄 - redeemDrugs - response:", response.data);
       window.snap.pay(response.data.midtransToken, {
         onSuccess: async function (result) {
           console.log("🐄 - redeemDrugs - result:", result);
@@ -66,7 +65,7 @@ export default function UserDetails() {
             text: "Payment success",
             icon: "success",
           });
-          const updateStatus = await api.patch(
+          await api.patch(
             `/redeem-drugs/${diseaseId}`,
             {
               status: "redeemed",
@@ -78,12 +77,10 @@ export default function UserDetails() {
               },
             }
           );
-          console.log("🐄 - updateStatus:", updateStatus);
-          navigate("/");
+          navigate(`/diseases/users/${userId}`);
         },
       });
     } catch (error) {
-      console.log("🐄 - redeemDrugs - error:", error);
       Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }
@@ -92,10 +89,10 @@ export default function UserDetails() {
     <section className="flex-row h-100 justify-center">
       <div className="text-center">
         <h1 className="text-2xl m-5 text-center">User Details</h1>
-        <p>{user.username}</p>
-        <p>{user.email}</p>
-        <button className="btn btn-secondary" onClick={deleteUser}>
-          Delete
+        <p className="my-2">{user.username}</p>
+        <p className="my-2">{user.email}</p>
+        <button className="btn btn-error btn-sm" onClick={deleteUser}>
+          Delete Account
         </button>
       </div>
       <div className="flex flex-wrap gap-4 justify-center m-5">
@@ -105,8 +102,14 @@ export default function UserDetails() {
             title={disease.diagnose}
             description={`Symptoms: ${disease.symptoms}`}
             info={`Recommendation: ${disease.recommendation}`}
-            buttonText="Redeem Drugs"
-            onClick={() => redeemDrugs(disease.id)}
+            buttonText={
+              disease.status === "redeemed" ? "Drugs Redeemed" : "Redeem Drugs"
+            }
+            onClick={
+              disease.status === "redeemed"
+                ? (e) => e.preventDefault()
+                : () => redeemDrugs(disease.id)
+            }
             buttonText2={"See Details"}
             linkTo2={`/diseases/${disease.id}`}
           />

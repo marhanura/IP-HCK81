@@ -8,6 +8,7 @@ const drugSlice = createSlice({
     drugs: [],
     currentPage: 1,
     totalPages: 0,
+    loading: false,
   },
   reducers: {
     setDrugs: (state, action) => {
@@ -17,12 +18,17 @@ const drugSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(fetchDrugs.pending, (state) => {
+      state.loading = true;
+    });
     builder.addCase(fetchDrugs.fulfilled, (state, action) => {
       state.drugs = action.payload;
       state.currentPage = action.payload.currentPage;
       state.totalPages = action.payload.totalPages;
+      state.loading = true;
     });
     builder.addCase(fetchDrugs.rejected, (state, action) => {
+      state.loading = true;
       console.error("Error fetching drugs:", action.error.message);
       console.error("Error adding drug", action.error.message);
     });
