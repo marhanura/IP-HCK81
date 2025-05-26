@@ -15,7 +15,7 @@ export default function DiseasesPage() {
   return (
     <section className="flex-row h-100 justify-center">
       <div className="text-center">
-        <h1 className="text-2xl m-5 text-center">Diseases List</h1>
+        <h1 className="text-2xl m-5 text-center">Diagnoses List</h1>
         <select
           className="select"
           value={filter}
@@ -44,7 +44,7 @@ export default function DiseasesPage() {
             ))}
           </>
         ) : (
-          <p>No diseases available</p>
+          <p>No diagnoses yet.</p>
         )}
       </div>
     </section>

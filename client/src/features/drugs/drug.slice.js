@@ -25,10 +25,10 @@ const drugSlice = createSlice({
       state.drugs = action.payload;
       state.currentPage = action.payload.currentPage;
       state.totalPages = action.payload.totalPages;
-      state.loading = true;
+      state.loading = false;
     });
     builder.addCase(fetchDrugs.rejected, (state, action) => {
-      state.loading = true;
+      state.loading = false;
       console.error("Error fetching drugs:", action.error.message);
       console.error("Error adding drug", action.error.message);
     });

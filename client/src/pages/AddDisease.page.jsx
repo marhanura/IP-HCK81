@@ -29,6 +29,7 @@ export default function AddDisease() {
       Swal.fire({
         text: "New diagnose generated successfully",
         icon: "success",
+        timer: 2000,
       });
       navigate(`/diseases/${response.data.id}`);
     } catch (error) {

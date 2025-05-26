@@ -78,7 +78,7 @@ export default function UserDetails() {
               },
             }
           );
-          navigate(`/diseases/users/${userId}`);
+          navigate("/");
         },
       });
     } catch (error) {
@@ -89,7 +89,7 @@ export default function UserDetails() {
   return (
     <section className="flex-row h-100 justify-center">
       <div className="text-center">
-        <h1 className="text-2xl m-5 text-center">User Details</h1>
+        <h1 className="text-2xl m-5 text-center">Profile</h1>
         <p className="my-2">{user.username}</p>
         <p className="my-2">{user.email}</p>
         <button className="btn btn-error btn-sm" onClick={deleteUser}>

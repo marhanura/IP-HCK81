@@ -34,11 +34,11 @@ class Controller {
       }
       const user = await User.findOne({ where: { email } });
       if (!user) {
-        throw { name: "Unauthorized", message: "User not found" };
+        throw { name: "Unauthorized", message: "Invalid email/password" };
       }
       const isValidPassword = comparePassword(password, user.password);
       if (!isValidPassword) {
-        throw { name: "Unauthorized", message: "Password not matched" };
+        throw { name: "Unauthorized", message: "Invalid email/password" };
       }
       const access_token = signToken({ id: user.id });
       res.status(200).json({ access_token, email, id: user.id });
@@ -368,6 +368,18 @@ class Controller {
       if (!drug) {
         throw { name: "NotFound", message: "Drug not found" };
       }
+      const existingDiseaseDrug = await DiseaseDrug.findOne({
+        where: {
+          DiseaseId: diseaseId,
+          DrugId: drugId,
+        },
+      });
+      if (existingDiseaseDrug) {
+        throw {
+          name: "BadRequest",
+          message: "This drug is already prescribed for this disease",
+        };
+      }
       let diseaseDrug = await DiseaseDrug.create({
         DiseaseId: diseaseId,
         DrugId: drugId,
@@ -383,6 +395,7 @@ class Controller {
       const users = await User.findAll({
         attributes: { exclude: ["password"] },
         order: [["createdAt", "desc"]],
+        where: { role: "pasien" },
       });
       res.status(200).json(users);
     } catch (error) {

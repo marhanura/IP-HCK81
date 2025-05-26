@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 export default function Navbar() {
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState({ username: "Guest" });
   const access_token = localStorage.getItem("access_token");
   const navigate = useNavigate();
 
@@ -44,7 +44,6 @@ export default function Navbar() {
             icon: "success",
             timer: 1500,
           });
-          fetchUser();
           navigate("/");
         }
       })
@@ -55,7 +54,7 @@ export default function Navbar() {
   }
 
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-base-100 shadow-sm fixed top-0 z-20 left-0 w-screen">
       <div className="flex-1 pl-3">
         <a href="/">
           <img src={Logo} alt="Zehat Logo" className="h-10" />
@@ -65,37 +64,45 @@ export default function Navbar() {
         <ul className="menu menu-horizontal px-1">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <a href="/drugs">Drugs Catalogue</a>
+              <a href="/drugs">Drug Catalogue</a>
             </li>
-            {user.role === "tenaga kesehatan" && (
+
+            {access_token ? (
               <>
+                {user.role === "tenaga kesehatan" && (
+                  <>
+                    <li>
+                      <a href="/diseases">Diagnoses</a>
+                    </li>
+                    <li>
+                      <a href="/users">Patients</a>
+                    </li>
+                  </>
+                )}
                 <li>
-                  <a href="/diseases">Diagnoses</a>
-                </li>
-                <li>
-                  <a href="/users">Patients</a>
+                  <details>
+                    <summary>Hello, {user.username}!</summary>
+                    <ul className="bg-base-100 rounded-t-none p-2 right-0">
+                      <li>
+                        <a href={`/diseases/users/${user.id}`}>Profile</a>
+                      </li>
+                      <li>
+                        <a href="/cart">Cart</a>
+                      </li>
+                      <li>
+                        <a href="/logout" onClick={handleLogout}>
+                          Log Out
+                        </a>
+                      </li>
+                    </ul>
+                  </details>
                 </li>
               </>
-            )}
-            <li>
-              {access_token ? (
-                <details>
-                  <summary>Hello, {user.username}!</summary>
-                  <ul className="bg-base-100 rounded-t-none p-2 right-0">
-                    <li>
-                      <a href={`/diseases/users/${user.id}`}>My Page</a>
-                    </li>
-                    <li>
-                      <a href="/logout" onClick={handleLogout}>
-                        Log Out
-                      </a>
-                    </li>
-                  </ul>
-                </details>
-              ) : (
+            ) : (
+              <li>
                 <a href="/login">Log In</a>
-              )}
-            </li>
+              </li>
+            )}
           </ul>
         </ul>
       </div>
