@@ -38,6 +38,7 @@ export default function DiseaseDetail() {
           Swal.fire({
             text: "Payment success",
             icon: "success",
+            timer: 3000,
           });
           const updateStatus = await api.patch(
             `/redeem-drugs/${diseaseId}`,

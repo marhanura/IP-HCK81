@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Card from "../components/Card";
 import { useEffect } from "react";
 import { fetchUsers } from "../features/users/user.slice";
+import Loading from "../components/Loading";
 
 export default function UsersPage() {
   const usersList = useSelector((state) => state.user.users);
@@ -31,7 +32,7 @@ export default function UsersPage() {
             ))}
           </>
         ) : (
-          <span className="loading loading-spinner text-primary"></span>
+          <Loading />
         )}
       </div>
     </section>

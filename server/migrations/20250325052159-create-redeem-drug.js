@@ -12,7 +12,7 @@ module.exports = {
       DiseaseId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "DiseaseDrugs",
+          model: "Diseases",
           key: "id",
         },
         onUpdate: "CASCADE",

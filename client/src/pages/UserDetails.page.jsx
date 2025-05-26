@@ -64,6 +64,7 @@ export default function UserDetails() {
           Swal.fire({
             text: "Payment success",
             icon: "success",
+            timer: 3000,
           });
           await api.patch(
             `/redeem-drugs/${diseaseId}`,
