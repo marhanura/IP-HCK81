@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Disease.belongsTo(models.User, { foreignKey: "UserId" });
       Disease.hasMany(models.DiseaseDrug, { foreignKey: "DiseaseId" });
+      Disease.hasOne(models.RedeemDrug, { foreignKey: "DiseaseId" });
       // define association here
     }
   }
@@ -31,6 +32,18 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Disease",
+      hooks: {
+        afterCreate: async (disease, options) => {
+          const RedeemDrug = sequelize.models.RedeemDrug;
+          await RedeemDrug.create(
+            {
+              DiseaseId: disease.id,
+              paymentStatus: "unpaid",
+            },
+            { transaction: options.transaction }
+          );
+        },
+      },
     }
   );
   return Disease;
