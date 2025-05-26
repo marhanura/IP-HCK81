@@ -33,9 +33,9 @@ export default function DiseaseDetail() {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
+      console.log("🐄 - redeemDrugs - response:", response.data.midtransToken);
       window.snap.pay(response.data.midtransToken, {
-        onSuccess: async function (result) {
-          console.log("🐄 - redeemDrugs - result:", result);
+        onSuccess: async function () {
           Swal.fire({
             text: "Payment success",
             icon: "success",
@@ -43,7 +43,7 @@ export default function DiseaseDetail() {
           const updateStatus = await api.patch(
             `/redeem-drugs/${diseaseId}`,
             {
-              status: "redemeed",
+              status: "redeemed",
               paymentStatus: "paid",
             },
             {
@@ -69,9 +69,9 @@ export default function DiseaseDetail() {
       icon: "question",
       showCancelButton: true,
     })
-      .then((result) => {
+      .then(async (result) => {
         if (result.isConfirmed) {
-          api.delete(`/diseases/${diseaseId}`, {
+          await api.delete(`/diseases/${diseaseId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,
             },
@@ -110,19 +110,26 @@ export default function DiseaseDetail() {
             <strong>Pasien:</strong> {disease.User?.username}
           </p>
           <div className="card-actions justify-end">
-            <Link to="/drugs">
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  localStorage.setItem("diseaseId", disease.id);
-                }}
-              >
-                Add Drugs
-              </button>
-            </Link>
-            <button className="btn btn-secondary" onClick={redeemDrugs}>
-              Redeem Drugs
-            </button>
+            {disease?.status === "redeemed" ? (
+              <button className="btn btn-disabled">Drugs Redeemed</button>
+            ) : (
+              <>
+                <Link to="/drugs">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      localStorage.setItem("diseaseId", disease.id);
+                    }}
+                  >
+                    Add Drugs
+                  </button>
+                </Link>
+                <button className="btn btn-secondary" onClick={redeemDrugs}>
+                  Redeem Drugs
+                </button>
+              </>
+            )}
+
             <button
               className="btn bg-orange-600 text-neutral-content"
               onClick={deleteDisease}

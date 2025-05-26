@@ -5,29 +5,59 @@ import { fetchDrugs } from "../features/drugs/drug.slice";
 import Pagination from "../components/Pagination";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
-import { useNavigate } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 
 export default function DrugList() {
   const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
   const dispatch = useDispatch();
+  const user = useOutletContext();
   const diseaseId = localStorage.getItem("diseaseId");
-  const role = localStorage.getItem("role");
-  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  async function addDrug(drugId) {
+  async function addDrug(drug) {
     try {
-      if (!localStorage.getItem("diseaseId")) {
+      if (!user.role) {
+        Swal.fire({
+          text: "Please log in first",
+          icon: "error",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/login");
+          }
+        });
+      } else if (user.role === "pasien") {
+        if (drug.type === "Prescription") {
+          await Swal.fire({
+            title: "Prescription only",
+            text: "Please consult with a doctor first",
+            confirmButtonText: "Consult",
+            showCancelButton: true,
+            cancelButtonText: "Back",
+            icon: "info",
+            timer: 3000,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate(`/diseases/add/${user.id}`);
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: "success",
+            text: "Drug added to your cart",
+            timer: 2000,
+          });
+        }
+      } else if (!localStorage.getItem("diseaseId")) {
         Swal.fire({
           text: "Please select a disease first",
           icon: "warning",
         });
-        localStorage.setItem("drugId", drugId);
+        localStorage.setItem("drugId", drug.id);
       } else {
         const response = await api.post(
-          `/diseases/${diseaseId}/${drugId}`,
+          `/diseases/${diseaseId}/${drug.id}`,
           {},
           {
             headers: {
@@ -65,6 +95,7 @@ export default function DrugList() {
                 placeholder="Search drug name"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                className="w-70"
               />
             </label>
           </div>
@@ -85,10 +116,7 @@ export default function DrugList() {
               }).format(drug.price)}
               info={drug.category}
               buttonText="Get Drug"
-              linkTo={role === "pasien" ? `/diseases/add/${userId}` : ""}
-              onClick={
-                role === "tenaga kesehatan" ? () => addDrug(drug.id) : ""
-              }
+              onClick={() => addDrug(drug)}
             />
           ))}
         </div>

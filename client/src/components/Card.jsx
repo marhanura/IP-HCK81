@@ -18,7 +18,12 @@ export default function Card({
         <p>{info}</p>
         <div className="card-actions justify-end">
           <Link to={linkTo}>
-            <button className="btn btn-accent" onClick={onClick}>
+            <button
+              className={`btn ${
+                buttonText === "Drugs Redeemed" ? "btn-disabled" : "btn-accent"
+              }`}
+              onClick={onClick}
+            >
               {buttonText}
             </button>
           </Link>

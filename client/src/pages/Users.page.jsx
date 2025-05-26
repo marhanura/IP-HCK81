@@ -5,7 +5,6 @@ import { fetchUsers } from "../features/users/user.slice";
 
 export default function UsersPage() {
   const usersList = useSelector((state) => state.user.users);
-  console.log("🐄 - UsersPage - usersList:", usersList);
   const dispatch = useDispatch();
 
   useEffect(() => {

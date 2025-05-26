@@ -2,9 +2,9 @@ import { Link } from "react-router";
 
 export default function Pagination({ page, totalPages, setPage }) {
   return (
-    <div className="join">
+    <div className="join mx-auto my-5">
       <button
-        className="join-item btn"
+        className="join-item btn btn-secondary"
         disabled={page === 1}
         onClick={() => setPage(page - 1)}
       >
@@ -14,7 +14,7 @@ export default function Pagination({ page, totalPages, setPage }) {
         {page} of {totalPages}
       </button>
       <button
-        className="join-item btn"
+        className="join-item btn btn-secondary"
         disabled={page === totalPages}
         onClick={() => setPage(page + 1)}
       >

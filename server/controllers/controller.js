@@ -41,9 +41,7 @@ class Controller {
         throw { name: "Unauthorized", message: "Password not matched" };
       }
       const access_token = signToken({ id: user.id });
-      res
-        .status(200)
-        .json({ access_token, email, role: user.role, id: user.id });
+      res.status(200).json({ access_token, email, id: user.id });
     } catch (error) {
       next(error);
     }
@@ -118,6 +116,7 @@ class Controller {
         dataPerPage: +options.limit,
       });
     } catch (error) {
+      console.log("🐄 - Controller - getAllDrugs - error:", error);
       next(error);
     }
   }
@@ -146,7 +145,7 @@ class Controller {
 
       let parameter = {
         transaction_details: {
-          order_id: "PRSC-" + new Date().getTime(),
+          order_id: "STYLE-" + new Date().getTime(),
           gross_amount: totalPrice,
         },
         credit_card: {
@@ -257,13 +256,6 @@ class Controller {
       if (!user) {
         throw { name: "NotFound", message: "User not found" };
       }
-      if (user.role !== "tenaga kesehatan") {
-        throw {
-          name: "Unauthorized",
-          message:
-            "Only health workers can add diseases, please consult directly to the health worker",
-        };
-      }
       let drugsData = await Drug.findAll({ attributes: ["id", "name"] });
       let drugsSorted = drugsData.map((drug) => {
         return { id: drug.id, name: drug.name };
@@ -290,10 +282,6 @@ class Controller {
         "diagnose": "unknown"
       }`;
       let result = await model.generateContent(prompt);
-      console.log(
-        "🐄 - Controller - addDisease - result:",
-        result.response.text()
-      );
       let response = result.response
         .text()
         .replace(/```json|```/g, "")
@@ -326,6 +314,7 @@ class Controller {
       });
       res.status(201).json(newDisease);
     } catch (error) {
+      console.log("🐄 - Controller - addDisease - error:", error);
       next(error);
     }
   }
@@ -405,6 +394,18 @@ class Controller {
     }
   }
 
+  static async getLoggedUser(req, res, next) {
+    try {
+      const user = await User.findOne({ where: { email: req.user.email } });
+      if (!user) {
+        throw { name: "NotFound", message: "User not found" };
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async deleteUser(req, res, next) {
     try {
       const { userId } = req.params;
@@ -415,6 +416,7 @@ class Controller {
       await user.destroy();
       res.status(200).json({ message: "User deleted" });
     } catch (error) {
+      console.log("🐄 - Controller - deleteUser - error:", error);
       next(error);
     }
   }

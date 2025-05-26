@@ -12,15 +12,11 @@ router.post("/google-login", Controller.googleLogin);
 router.get("/drugs", Controller.getAllDrugs);
 router.use(authentication);
 router.get("/redeem-drugs/:diseaseId", Controller.redeemDrug);
-router.patch(
-  "/redeem-drugs/:diseaseId",
-  authorization,
-  Controller.updateStatus
-);
+router.patch("/redeem-drugs/:diseaseId", Controller.updateStatus);
 router.get("/diseases", authorization, Controller.getAllDiseases);
+router.get("/diseases/:diseaseId", Controller.getDiseaseById);
 router.get("/diseases/users/:userId", Controller.getDiseasebyUser);
 router.post("/diseases/add/:userId", authorization, Controller.addDisease);
-router.get("/diseases/:diseaseId", authorization, Controller.getDiseaseById);
 router.delete("/diseases/:diseaseId", authorization, Controller.deleteDisease);
 router.post(
   "/diseases/:diseaseId/:drugId",
@@ -28,6 +24,7 @@ router.post(
   Controller.addDrugToDisease
 );
 router.get("/users", authorization, Controller.getAllUsers);
+router.get("/logged-user", Controller.getLoggedUser);
 router.delete("/users/:userId", authorization, Controller.deleteUser);
 
 module.exports = router;
