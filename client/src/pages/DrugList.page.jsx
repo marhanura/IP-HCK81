@@ -6,6 +6,7 @@ import Pagination from "../components/Pagination";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
 import { useNavigate, useOutletContext } from "react-router";
+import Loading from "../components/Loading";
 
 export default function DrugList() {
   const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
@@ -119,7 +120,7 @@ export default function DrugList() {
           ))}
         </div>
       ) : (
-        <span className="loading loading-spinner text-primary"></span>
+        <Loading />
       )}
       <div className="flex justify-center m-5">
         <Pagination
