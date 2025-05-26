@@ -300,6 +300,7 @@ class Controller {
         UserId: userId,
         status: "not redeemed",
       });
+      console.log("🐄 - Controller - addDisease - newDisease:", newDisease);
       const drugs = response.DrugId.split(", ").map((drug) => {
         let diseaseDrug = DiseaseDrug.create({
           DiseaseId: newDisease.id,
@@ -307,11 +308,12 @@ class Controller {
         });
         return diseaseDrug;
       });
+      console.log("🐄 - Controller - drugs - drugs:", drugs);
 
-      const redeemDrug = await RedeemDrug.create({
-        DiseaseId: newDisease.id,
-        paymentStatus: "unpaid",
-      });
+      // const redeemDrug = await RedeemDrug.create({
+      //   DiseaseId: newDisease.id,
+      //   paymentStatus: "unpaid",
+      // });
       res.status(201).json(newDisease);
     } catch (error) {
       console.log("🐄 - Controller - addDisease - error:", error);

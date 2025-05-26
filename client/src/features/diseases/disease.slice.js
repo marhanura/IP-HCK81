@@ -39,10 +39,8 @@ export const fetchDiseases = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       });
-      console.log("🐄 - fetchDiseases - response:", response);
       return response.data;
     } catch (error) {
-      console.log("🐄 - fetchDiseases - error:", error);
       Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }

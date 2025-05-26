@@ -16,7 +16,6 @@ export default function DiseaseDetail() {
         },
       });
       setDisease(response.data[0]);
-      console.log("🐄 - fetchDiseaseById - response:", response.data[0]);
     } catch (error) {
       Swal.fire({ text: error.response.data.message, icon: "error" });
     }

@@ -23,7 +23,6 @@ export default function RegisterPage() {
           },
         }
       );
-      console.log("🐄 - handleRegister - response:", response);
       Swal.fire({ text: "New user added successfully", icon: "success" });
       navigate("/login");
     } catch (error) {

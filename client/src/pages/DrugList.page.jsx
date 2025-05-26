@@ -66,7 +66,6 @@ export default function DrugList() {
           }
         );
         localStorage.removeItem("diseaseId");
-        console.log("🐄 - addDrug - response:", response);
         await Swal.fire({
           text: "New drug added successfully",
           icon: "success",
@@ -74,7 +73,6 @@ export default function DrugList() {
         navigate(`/diseases/${diseaseId}`);
       }
     } catch (error) {
-      console.log("🐄 - addDrug - error:", error);
       Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }
