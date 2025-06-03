@@ -84,7 +84,7 @@ export default function DiseaseDetail() {
   }
 
   return (
-    <section className="min-h-screen grid place-items-center bg-base-100 -mt-15">
+    <section className="min-h-screen grid place-items-center bg-base-100 pt-20">
       <div className="card card-border bg-[#1c3d70] text-base-100 w-200 card-xl">
         <div className="card-body">
           <p className="text-xs">Disease Details</p>

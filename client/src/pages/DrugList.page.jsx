@@ -10,9 +10,7 @@ import Loading from "../components/Loading";
 import debounce from "lodash.debounce";
 
 export default function DrugList() {
-  const { drugs, totalPages, currentPage, loading } = useSelector(
-    (state) => state.drug
-  );
+  const { drugs, totalPages, currentPage } = useSelector((state) => state.drug);
   const dispatch = useDispatch();
   const user = useOutletContext();
   const diseaseId = localStorage.getItem("diseaseId");
@@ -55,6 +53,7 @@ export default function DrugList() {
         Swal.fire({
           text: "Please select a disease first",
           icon: "warning",
+          timer: 2000,
         });
         localStorage.setItem("drugId", drug.id);
       } else {
@@ -105,7 +104,7 @@ export default function DrugList() {
   }, [search, page, debounceSearch]);
 
   return (
-    <section className="flex-row h-100 justify-center">
+    <section className="flex-row h-100 justify-center pt-25">
       <div className="m-5 text-center">
         <h1 className="text-2xl m-5">Drug Catalogue</h1>
         <div className="join">
@@ -121,7 +120,7 @@ export default function DrugList() {
             </label>
           </div>
           <button
-            className="btn btn-neutral join-item shadow-none"
+            className="btn bg-[#1c3d70] text-base-100 join-item shadow-none"
             type="submit"
           >
             Search

@@ -8,7 +8,7 @@ export default function HomePage() {
   const user = useOutletContext();
 
   return (
-    <div className="flex flex-col w-screen bg-base-100">
+    <div className="flex flex-col w-screen bg-base-100 pt-20">
       {/* Hero */}
       <div className="hero bg-[#1c3d70] min-h-screen w-full px-10">
         <div className="hero-content w-full flex-col lg:flex-row gap-25">

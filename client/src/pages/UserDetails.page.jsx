@@ -87,12 +87,15 @@ export default function UserDetails() {
   }
 
   return (
-    <section className="flex-row h-100 justify-center">
+    <section className="flex-row h-100 justify-center pt-25">
       <div className="text-center">
         <h1 className="text-2xl m-5 text-center">Profile</h1>
         <p className="my-2">{user.username}</p>
         <p className="my-2">{user.email}</p>
-        <button className="btn btn-error btn-sm" onClick={deleteUser}>
+        <button
+          className="btn btn-error btn-sm shadow-none"
+          onClick={deleteUser}
+        >
           Delete Account
         </button>
       </div>

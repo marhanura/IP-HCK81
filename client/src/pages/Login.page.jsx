@@ -54,7 +54,7 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <section className="flex flex-wrap items-center justify-around gap-5 w-screen">
+    <section className="flex flex-wrap items-center justify-center h-screen gap-10">
       <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box gap-3">
         <legend className="fieldset-legend text-xl">Log In</legend>
         <form onSubmit={handleLogin}>

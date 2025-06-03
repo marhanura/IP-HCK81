@@ -19,7 +19,7 @@ export default function RegisterPage() {
   async function handleRegister(e) {
     e.preventDefault();
     try {
-      const response = await api.post(
+      await api.post(
         "/register",
         { username, email, password, role },
         {
@@ -31,13 +31,12 @@ export default function RegisterPage() {
       Swal.fire({ text: "Register successful", icon: "success", timer: 2000 });
       navigate("/login");
     } catch (error) {
-      console.log("🐄 - handleRegister - error:", error);
       Swal.fire({ text: error.response.data.message, icon: "error" });
     }
   }
 
   return (
-    <section className="flex flex-wrap items-center justify-center h-screen">
+    <section className="flex flex-wrap items-center justify-center h-screen gap-10">
       <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
         <legend className="fieldset-legend">Register</legend>
         <form onSubmit={handleRegister}>

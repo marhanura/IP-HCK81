@@ -20,7 +20,9 @@ export default function Card({
           <Link to={linkTo}>
             <button
               className={`btn shadow-none ${
-                buttonText === "Drugs Redeemed" ? "btn-disabled" : "btn-accent"
+                buttonText === "Drugs Redeemed"
+                  ? "btn-disabled"
+                  : "bg-[#f16634] text-base-100"
               }`}
               onClick={onClick}
             >
@@ -29,7 +31,9 @@ export default function Card({
           </Link>
           {buttonText2 ? (
             <Link to={linkTo2}>
-              <button className="btn btn-secondary">{buttonText2}</button>
+              <button className="btn bg-[#1c3d70] text-base-100 shadow-none">
+                {buttonText2}
+              </button>
             </Link>
           ) : (
             ""

@@ -13,7 +13,7 @@ export default function UsersPage() {
   }, []);
 
   return (
-    <section className="flex-row h-100 justify-center">
+    <section className="flex-row h-100 justify-center pt-25">
       <h1 className="text-2xl m-5 text-center">Patients List</h1>
       <div className="flex flex-wrap gap-4 justify-center m-5">
         {usersList.data ? (
