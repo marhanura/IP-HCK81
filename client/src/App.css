@@ -6,3 +6,9 @@
 :root {
   font-family: "Poppins", sans-serif;
 }
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}

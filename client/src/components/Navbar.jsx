@@ -54,7 +54,7 @@ export default function Navbar() {
   }
 
   return (
-    <div className="navbar bg-base-100 shadow-sm fixed top-0 z-20 left-0 w-screen">
+    <div className="navbar fixed w-screen top-0 z-20 px-20 border-b-1 border-base-300 bg-base-100">
       <div className="flex-1 pl-3">
         <a href="/">
           <img src={Logo} alt="Zehat Logo" className="h-10" />
@@ -64,7 +64,7 @@ export default function Navbar() {
         <ul className="menu menu-horizontal px-1">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <a href="/drugs">Drug Catalogue</a>
+              <a href="/drugs">Drug Store</a>
             </li>
 
             {access_token ? (

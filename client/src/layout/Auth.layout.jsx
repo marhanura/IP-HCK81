@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
+import Footer from "../components/Footer";
 
 export default function AuthLayout() {
   const [user, setUser] = useState("");
@@ -19,7 +20,6 @@ export default function AuthLayout() {
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,
             },
           });
-          console.log("🐄 - fetchUser - response:", response);
           setUser(response.data);
         } catch (error) {
           Swal.fire({

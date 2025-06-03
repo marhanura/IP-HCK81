@@ -122,7 +122,10 @@ export default function DrugList() {
               />
             </label>
           </div>
-          <button className="btn btn-neutral join-item" type="submit">
+          <button
+            className="btn btn-neutral join-item shadow-none"
+            type="submit"
+          >
             Search
           </button>
         </div>

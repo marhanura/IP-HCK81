@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
 import { api } from "../helpers/api";
+import Footer from "../components/Footer";
 
 export default function HomeLayout() {
   const [user, setUser] = useState("");

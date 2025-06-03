@@ -19,7 +19,7 @@ export default function Card({
         <div className="card-actions justify-end">
           <Link to={linkTo}>
             <button
-              className={`btn ${
+              className={`btn shadow-none ${
                 buttonText === "Drugs Redeemed" ? "btn-disabled" : "btn-accent"
               }`}
               onClick={onClick}
