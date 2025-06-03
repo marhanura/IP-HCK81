@@ -2,6 +2,7 @@ import { fetchDiseases } from "../features/diseases/disease.slice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Card from "../components/Card";
+import Loading from "../components/Loading";
 
 export default function DiseasesPage() {
   const diseasesList = useSelector((state) => state.disease.diseases);
@@ -30,21 +31,25 @@ export default function DiseasesPage() {
         </select>
       </div>
       <div className="flex flex-wrap gap-4 justify-center m-5">
-        {diseasesList.length > 0 ? (
-          <>
-            {diseasesList.map((disease) => (
-              <Card
-                key={disease.id}
-                title={disease.diagnose}
-                description={`Symptoms: ${disease.symptoms}`}
-                info={`Recommendation: ${disease.recommendation}`}
-                buttonText={"See Details"}
-                linkTo={`/diseases/${disease.id}`}
-              />
-            ))}
-          </>
+        {diseasesList ? (
+          diseasesList.length > 0 ? (
+            <>
+              {diseasesList.map((disease) => (
+                <Card
+                  key={disease.id}
+                  title={disease.diagnose}
+                  description={`Symptoms: ${disease.symptoms}`}
+                  info={`Recommendation: ${disease.recommendation}`}
+                  buttonText={"See Details"}
+                  linkTo={`/diseases/${disease.id}`}
+                />
+              ))}
+            </>
+          ) : (
+            <Loading />
+          )
         ) : (
-          <p>No diagnoses yet.</p>
+          <div className="text-center">No diagnoses yet.</div>
         )}
       </div>
     </section>

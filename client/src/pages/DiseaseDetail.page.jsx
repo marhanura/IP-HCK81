@@ -84,8 +84,8 @@ export default function DiseaseDetail() {
   }
 
   return (
-    <section className="min-h-screen grid place-items-center pt-15 bg-[#1c3d70]">
-      <div className="card card-border bg-base-100 w-200 card-xl">
+    <section className="min-h-screen grid place-items-center bg-base-100 -mt-15">
+      <div className="card card-border bg-[#1c3d70] text-base-100 w-200 card-xl">
         <div className="card-body">
           <p className="text-xs">Disease Details</p>
           <h2 className="card-title">{disease?.diagnose}</h2>
@@ -109,12 +109,14 @@ export default function DiseaseDetail() {
           </p>
           <div className="card-actions justify-end">
             {disease?.status === "redeemed" ? (
-              <button className="btn btn-disabled">Drugs Redeemed</button>
+              <button className="btn bg-base-100 shadow-none hover:cursor-default hover:opacity-100 hover:bg-base-100">
+                Drugs Redeemed
+              </button>
             ) : (
               <>
                 <Link to="/drugs">
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary shadow-none"
                     onClick={() => {
                       localStorage.setItem("diseaseId", disease.id);
                     }}
@@ -122,14 +124,17 @@ export default function DiseaseDetail() {
                     Add Drugs
                   </button>
                 </Link>
-                <button className="btn btn-secondary" onClick={redeemDrugs}>
+                <button
+                  className="btn btn-secondary shadow-none"
+                  onClick={redeemDrugs}
+                >
                   Redeem Drugs
                 </button>
               </>
             )}
 
             <button
-              className="btn bg-orange-600 text-neutral-content"
+              className="btn bg-[#f16634] text-base-100 shadow-none border-none"
               onClick={deleteDisease}
             >
               Delete Disease

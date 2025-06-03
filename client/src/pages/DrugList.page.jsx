@@ -26,11 +26,9 @@ export default function DrugList() {
         Swal.fire({
           text: "Please log in first",
           icon: "error",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate("/login");
-          }
+          timer: 1500,
         });
+        navigate("/login");
       } else if (user.role === "pasien") {
         if (drug.type === "Prescription") {
           await Swal.fire({
